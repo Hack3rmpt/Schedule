@@ -1,0 +1,12 @@
+{% extends "main/base.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+    <h1>Добро пожаловать в ScheduleApp</h1>
+    <p>Выберите нужный раздел:</p>
+
+    <a href="{{ url_for('auth.login') }}" class="button">Войти</a>
+    <a href="{{ url_for('auth.register') }}" class="button">Регистрация</a>
+    <a href="{{ url_for('admin.dashboard') }}" class="button">Админ-панель</a>
+{% endblock %}

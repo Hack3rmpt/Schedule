@@ -1,0 +1,9 @@
+{% extends "main/base.html" %}
+
+{% block title %}Админ-панель{% endblock %}
+
+{% block content %}
+    <h1>Панель администратора</h1>
+    <a href="{{ url_for('admin.create_user') }}">Создать пользователя</a>
+    <a href="{{ url_for('admin.logs') }}">Логи</a>
+{% endblock %}

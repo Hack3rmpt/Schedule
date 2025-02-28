@@ -9,4 +9,4 @@ class Config(object):
 
     SQLALCHEMY_DATABASE_URI = f'postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}'
     SECRET_KEY = '09182b3cr9b8721sk901j238ys19208nxy9'
-    SECRET_KEY = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = "True"
