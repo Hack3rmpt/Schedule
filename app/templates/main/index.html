@@ -6,7 +6,11 @@
     <h1>Добро пожаловать в ScheduleApp</h1>
     <p>Выберите нужный раздел:</p>
 
-    <a href="{{ url_for('auth.login') }}" class="button">Войти</a>
-    <a href="{{ url_for('auth.register') }}" class="button">Регистрация</a>
-    <a href="{{ url_for('admin.dashboard') }}" class="button">Админ-панель</a>
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('auth.logout') }}" class="button">Выйти</a>
+        <a href="{{ url_for('admin.dashboard') }}" class="button">Админ-панель</a>
+    {% else %}
+        <a href="{{ url_for('auth.login') }}" class="button">Войти</a>
+        <a href="{{ url_for('auth.register') }}" class="button">Регистрация</a>
+    {% endif %}
 {% endblock %}

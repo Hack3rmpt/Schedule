@@ -1,12 +1,11 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_bcrypt import Bcrypt
-from app.config import Config
+from flask import Flask, redirect, url_for, request
 
-db = SQLAlchemy()
-migrate = Migrate()
-bcrypt = Bcrypt()
+from flask_login import current_user
+
+from app.config import Config
+from app.extensions import db, migrate, bcrypt, login_manager
+
+
 
 def create_app():
     app = Flask(__name__)
@@ -15,14 +14,21 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
+    login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
+
+    from app.auth.routes import auth
+    from app.routes.admin import admin
+    from app.routes.main import main
+    from app.routes.schedule import schedule
+    # Регистрация Blueprint
+    app.register_blueprint(auth, url_prefix='/auth')
+    app.register_blueprint(admin, url_prefix='/admin')
+    app.register_blueprint(main)
+    app.register_blueprint(schedule, url_prefix='/schedule')
 
     with app.app_context():
-        from app.auth.routes import bp as auth_bp
-        from app.admin.routes import bp as admin_bp
-        from app.routes import bp as main_bp  # <-- Новый маршрут
+        db.create_all()
 
-        app.register_blueprint(auth_bp, url_prefix='/auth')
-        app.register_blueprint(admin_bp, url_prefix='/admin')
-        app.register_blueprint(main_bp)
 
     return app
