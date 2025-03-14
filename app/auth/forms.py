@@ -26,3 +26,5 @@ class LoginForm(FlaskForm):
                            validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Войти')
+
+

@@ -3,7 +3,8 @@ from flask import Flask, redirect, url_for, request
 from flask_login import current_user
 
 from app.config import Config
-from app.extensions import db, migrate, bcrypt, login_manager
+from app.extensions import db, migrate, bcrypt, login_manager,csrf
+from app.models.user import User
 
 
 
@@ -16,6 +17,7 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
+    csrf.init_app(app)
 
     from app.auth.routes import auth
     from app.routes.admin import admin
@@ -30,5 +32,16 @@ def create_app():
     with app.app_context():
         db.create_all()
 
+        admin_user = User.query.filter_by(role='admin').first()
+        if not admin_user:
+            admin = User(
+                username="admin",  # Имя пользователя
+                email="admin@example.com",  # Email
+                role="admin"  # Роль
+            )
+            admin.set_password("admin123")  # Установите надежный пароль!
+            db.session.add(admin)
+            db.session.commit()
+            print("Суперпользователь создан: admin@example.com / admin123")
 
     return app
