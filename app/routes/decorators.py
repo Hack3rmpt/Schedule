@@ -5,7 +5,6 @@ from flask_login import current_user
 def admin_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        # Проверяем, авторизован ли пользователь и является ли он администратором
         if not current_user.is_authenticated or current_user.role != 'admin':
             flash('Доступ запрещен. Требуются права администратора.', 'danger')
             return redirect(url_for('main.index'))  # Перенаправляем на главную страницу

@@ -1,0 +1,142 @@
+{% extends "main/base.html" %}
+
+{% block title %}Управление направлениями - ScheduleApp{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 border-bottom pb-2">
+        <a href="{{ url_for('schedule.list_directions') }}" class="text-decoration-none">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        Управление направлениями
+    </h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Форма для добавления нового направления -->
+    {% if current_user.role == 'admin' %}
+    <div class="card shadow-sm mb-5">
+        <div class="card-body">
+            <h5 class="card-title">Добавить новое направление</h5>
+            <form method="POST" action="{{ url_for('schedule.create_direction') }}">
+                {{ add_form.hidden_tag() }}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ add_form.name.label(class="form-label") }}
+                        {{ add_form.name(class="form-control") }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ add_form.code.label(class="form-label") }}
+                        {{ add_form.code(class="form-control") }}
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-lg"></i> Добавить
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Форма для редактирования направления -->
+    {% if form %}
+    <div class="card shadow-sm mb-5">
+        <div class="card-body">
+            <h5 class="card-title">Редактировать направление</h5>
+            <form method="POST" action="{{ url_for('schedule.edit_direction', direction_id=form.current_id) }}">
+                {{ form.hidden_tag() }}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.code.label(class="form-label") }}
+                        {{ form.code(class="form-control") }}
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="bi bi-save"></i> Сохранить
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Список направлений -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Код</th>
+                            <th>Название</th>
+                            <th class="text-end">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for direction in directions %}
+                        <tr>
+                            <td>{{ direction.code }}</td>
+                            <td>{{ direction.name }}</td>
+                            <td class="text-end">
+                                {% if current_user.role == 'admin' %}
+                                <a href="{{ url_for('schedule.edit_direction', direction_id=direction.id) }}" class="btn btn-sm btn-outline-warning me-2">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form class="d-inline" method="POST" action="{{ url_for('schedule.delete_direction', direction_id=direction.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вы уверены?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editButtons = document.querySelectorAll('.btn-outline-warning');
+    editButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const directionId = this.getAttribute('href').split('/').pop();
+            fetch(`/schedule/directions/${directionId}/edit`)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const editForm = doc.querySelector('.card-body form');
+                    if (editForm) {
+                        const formContainer = document.querySelector('.card-body form');
+                        formContainer.innerHTML = editForm.innerHTML;
+                    }
+                });
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -3,8 +3,9 @@ from flask import Blueprint
 from flask_login import login_required
 
 from .decorators import admin_required
-from app.forms import CreateUserForm, EditUserForm
+from app.forms import CreateUserForm, EditUserForm, DirectionForm
 from app.models.user import User
+from app.models.models import Specialization, Direction
 from app.extensions import db
 
 admin = Blueprint('admin', __name__)
@@ -89,3 +90,11 @@ def delete_user(user_id):
         db.session.commit()
         flash('Пользователь удален!', 'success')
     return redirect(url_for('admin.create_user'))
+
+
+
+
+
+
+
+

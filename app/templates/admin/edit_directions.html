@@ -1,0 +1,77 @@
+{% extends "main/base.html" %}
+
+{% block title %}Управление направлениями{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Управление направлениями</h1>
+
+    <!-- Сообщения об успехе или ошибке -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Форма для добавления и редактирования направления -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title" id="formTitle">Добавить направление</h2>
+            <form method="POST" action="{{ url_for('admin.add_direction') }}" id="directionForm">
+                {{ form.hidden_tag() }}  <!-- CSRF-токен -->
+                <div class="mb-3">
+                    {{ form.code.label(class="form-label") }}
+                    {{ form.code(class="form-control", id="code") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control", id="name") }}
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitButton">Добавить</button>
+                <button type="button" class="btn btn-secondary" id="cancelButton" style="display: none;">Отмена</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Список направлений в виде сетки -->
+    <div class="row">
+        {% for direction in directions %}
+            <div class="col-md-3 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ direction.name }}</h5>
+                        <p class="card-text">Код: {{ direction.code }}</p>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editDirection({{ direction.id }}, '{{ direction.code }}', '{{ direction.name }}')">Редактировать</button>
+                            <a href="{{ url_for('admin.delete_direction', id=direction.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вы уверены, что хотите удалить это направление?')">Удалить</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Функция для заполнения формы редактирования
+    function editDirection(id, code, name) {
+        document.getElementById('code').value = code;
+        document.getElementById('name').value = name;
+        document.getElementById('formTitle').textContent = 'Редактировать направление';
+        document.getElementById('submitButton').textContent = 'Сохранить изменения';
+        document.getElementById('cancelButton').style.display = 'inline-block';
+        document.getElementById('directionForm').action = "{{ url_for('admin.edit_direction', id=0) }}".replace("0", id);
+    }
+
+    // Функция для сброса формы
+    document.getElementById('cancelButton').onclick = function() {
+        document.getElementById('directionForm').reset();
+        document.getElementById('formTitle').textContent = 'Добавить направление';
+        document.getElementById('submitButton').textContent = 'Добавить';
+        document.getElementById('cancelButton').style.display = 'none';
+        document.getElementById('directionForm').action = "{{ url_for('admin.add_direction') }}";
+    };
+</script>
+{% endblock %}

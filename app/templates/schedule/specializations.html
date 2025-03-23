@@ -1,0 +1,175 @@
+{% extends "main/base.html" %}
+
+{% block title %}Управление специальностями - ScheduleApp{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Заголовок -->
+    <div class="d-flex align-items-center mb-4">
+        <h2 class="mb-0">Управление специальностями</h2>
+    </div>
+
+    <!-- Flash-сообщения -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Форма добавления -->
+    {% if current_user.role in ['admin', 'worker'] %}
+    <div class="card shadow-sm mb-5">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Добавить новую специальность</h5>
+            <form method="POST" action="{{ url_for('schedule.create_specialization') }}">
+                {{ add_form.hidden_tag() }}
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label">Название специальности</label>
+                        {{ add_form.name(class="form-control") }}
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Направление</label>
+                        <select class="form-select" name="direction_id">
+                            <option value="{{ direction.id }}" selected>{{ direction.name }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-lg me-2"></i>Добавить
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Плитки специальностей -->
+    <div class="row g-4">
+        {% for specialization in direction.specializations %}
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column">
+                    <!-- Заголовок -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="card-title mb-1">{{ specialization.name }}</h5>
+                            <small class="text-muted">
+                                Направление: {{ specialization.direction.name }}
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Кнопки управления -->
+                    <div class="mt-auto">
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="bi bi-calendar-event me-2"></i>
+                                Группы
+                            </a>
+
+                            {% if current_user.role == 'admin' %}
+                            <button class="btn btn-outline-warning" data-bs-toggle="modal"
+                                    data-bs-target="#editModal{{ specialization.id }}">
+                                <i class="bi bi-pencil me-2"></i>Редактировать
+                            </button>
+
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal{{ specialization.id }}">
+                                <i class="bi bi-trash me-2"></i>Удалить
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно редактирования -->
+        <div class="modal fade" id="editModal{{ specialization.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Редактирование специальности</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="POST" action="{{ url_for('schedule.edit_specialization', specialization_id=specialization.id) }}">
+                        <div class="modal-body">
+                            {{ add_form.hidden_tag() }}
+                            <div class="mb-3">
+                                <label class="form-label">Название</label>
+                                <input type="text" class="form-control" name="name"
+                                       value="{{ specialization.name }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Направление</label>
+                                <select class="form-select" name="direction_id">
+                                    {% for value, label in add_form.direction_id.choices %}
+                                    <option value="{{ value }}"
+                                        {% if value == specialization.direction_id %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Модальное окно удаления -->
+            <div class="modal fade" id="deleteModal{{ specialization.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Подтверждение удаления</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="POST" action="{{ url_for('schedule.delete_specialization', specialization_id=specialization.id) }}">
+                            <div class="modal-body">
+                                <p>Вы уверены, что хотите удалить специальность "{{ specialization.name }}"?</p>
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                <button type="submit" class="btn btn-danger">Удалить</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+        <div class="col-12">
+            <div class="text-center py-5 bg-light rounded-3">
+                <i class="bi bi-inboxes fs-1 text-muted"></i>
+                <p class="mt-3 text-muted">Нет доступных специальностей</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Скрипт для инициализации модальных окон -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация всех модальных окон
+    var modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+        new bootstrap.Modal(modal);
+    });
+});
+</script>
+{% endblock %}
