@@ -1,9 +1,10 @@
+from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, SubmitField, HiddenField, DateField, DateTimeField, IntegerField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, Optional, NumberRange
 from app.models.user import User
 
-from app.models.models import Direction, Specialization, StudentGroup, Subject, Teacher, Room
+from app.models.models import Direction, Specialization, StudentGroup, Subject, Teacher, Room, Course
 from datetime import datetime
 
 class CreateUserForm(FlaskForm):
@@ -114,29 +115,109 @@ class EditSpecializationForm(FlaskForm):
         if specialization and specialization.id != int(self.specialization_id.data):
             raise ValidationError('Специальность с таким названием уже существует')
 
-class AddSubjectForm(FlaskForm):
-    name = StringField('Название предмета', validators=[
-        DataRequired(),
-        Length(max=100, message="Максимум 100 символов")
-    ])
-    submit = SubmitField('Добавить предмет')
+from wtforms import SelectField, SubmitField, HiddenField
+from wtforms.validators import DataRequired
 
-    def validate_name(self, field):
-        if Subject.query.filter_by(name=field.data).first():
-            raise ValidationError('Предмет с таким названием уже существует')
 
-class EditSubjectForm(FlaskForm):
-    subject_id = HiddenField('ID предмета')
-    name = StringField('Название предмета', validators=[
-        DataRequired(),
-        Length(max=100, message="Максимум 100 символов")
-    ])
+class AddCourseForm(FlaskForm):
+    number = SelectField(
+        'Номер курса',
+        coerce=int,
+        choices=[(1, '1 курс'), (2, '2 курс'), (3, '3 курс'), (4, '4 курс')],
+        validators=[DataRequired(message="Выберите номер курса")]
+    )
+    submit = SubmitField('Добавить курс')
+
+    def validate_number(self, field):
+        # Получаем specialization_id из URL параметров
+        specialization_id = request.view_args.get('specialization_id')
+
+        if not specialization_id:
+            raise ValidationError('Специальность не определена')
+
+        if Course.query.filter_by(
+                number=field.data,
+                specialization_id=specialization_id
+        ).first():
+            raise ValidationError('Курс с таким номером уже существует для этой специальности')
+
+
+class EditCourseForm(FlaskForm):
+    course_id = HiddenField('ID курса')
+    number = SelectField(
+        'Номер курса',
+        coerce=int,
+        choices=[(1, '1 курс'), (2, '2 курс'), (3, '3 курс'), (4, '4 курс')],
+        validators=[DataRequired(message="Выберите номер курса")]
+    )
     submit = SubmitField('Сохранить изменения')
 
+    def validate_number(self, field):
+        course = Course.query.get(int(self.course_id.data))
+        if course and course.number != field.data:
+            existing = Course.query.filter_by(
+                number=field.data,
+                specialization_id=course.specialization_id
+            ).first()
+            if existing:
+                raise ValidationError('Курс с таким номером уже существует для этой специальности')
+
+class AddSubjectForm(FlaskForm):
+    name = StringField(
+        'Название предмета',
+        validators=[
+            DataRequired(),
+            Length(max=100)
+        ]
+    )
+    course_id = SelectField(
+        'Курс',
+        coerce=int,
+        validators=[DataRequired()]
+    )
+    assessment_type = SelectField(
+        'Тип аттестации',
+        choices=[('Экзамен', 'Экзамен'), ('Зачет', 'Зачет')],
+        validators=[DataRequired()]
+    )
+    submit = SubmitField('Добавить')
+
     def validate_name(self, field):
-        subject = Subject.query.filter_by(name=field.data).first()
+        if Subject.query.filter_by(
+            name=field.data,
+            course_id=self.course_id.data
+        ).first():
+            raise ValidationError('Предмет уже существует для этого курса')
+
+
+class EditSubjectForm(FlaskForm):
+    subject_id = HiddenField()
+    name = StringField(
+        'Название предмета',
+        validators=[
+            DataRequired(),
+            Length(max=100)
+        ]
+    )
+    course_id = SelectField(
+        'Курс',
+        coerce=int,
+        validators=[DataRequired()]
+    )
+    assessment_type = SelectField(
+        'Тип аттестации',
+        choices=[('Экзамен', 'Экзамен'), ('Зачет', 'Зачет')],
+        validators=[DataRequired()]
+    )
+    submit = SubmitField('Обновить')
+
+    def validate_name(self, field):
+        subject = Subject.query.filter_by(
+            name=field.data,
+            course_id=self.course_id.data
+        ).first()
         if subject and subject.id != int(self.subject_id.data):
-            raise ValidationError('Предмет с таким названием уже существует')
+            raise ValidationError('Название предмета должно быть уникальным для курса')
 
 ### 3. Формы для группы (StudentGroup) ###
 class AddGroupForm(FlaskForm):
@@ -144,15 +225,12 @@ class AddGroupForm(FlaskForm):
         DataRequired(),
         Length(max=50, message="Максимум 50 символов")
     ])
-    specialization_id = SelectField('Специальность', coerce=int, validators=[DataRequired()])
+    course_id = SelectField('Курс', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Добавить группу')
 
-    def __init__(self, *args, **kwargs):
-        super(AddGroupForm, self).__init__(*args, **kwargs)
-        self.specialization_id.choices = [(s.id, s.name) for s in Specialization.query.all()]
-
     def validate_name(self, field):
-        if StudentGroup.query.filter_by(name=field.data).first():
+        group = StudentGroup.query.filter_by(name=field.data).first()
+        if group:
             raise ValidationError('Группа с таким названием уже существует')
 
 
@@ -162,12 +240,12 @@ class EditGroupForm(FlaskForm):
         DataRequired(),
         Length(max=50, message="Максимум 50 символов")
     ])
-    specialization_id = SelectField('Специальность', coerce=int, validators=[DataRequired()])
+    course_id = SelectField('Курс', coerce=int, validators=[DataRequired()])  # Замените specialization_id на course_id
     submit = SubmitField('Сохранить изменения')
 
     def __init__(self, *args, **kwargs):
         super(EditGroupForm, self).__init__(*args, **kwargs)
-        self.specialization_id.choices = [(s.id, s.name) for s in Specialization.query.all()]
+        self.course_id.choices = [(c.id, f"{c.number} курс") for c in Course.query.all()]  # Обновите выбор курсов
 
     def validate_name(self, field):
         group = StudentGroup.query.filter_by(name=field.data).first()
@@ -217,6 +295,8 @@ class EditRoomForm(FlaskForm):
         if room and room.id != int(self.room_id.data):
             raise ValidationError('Аудитория с таким номером уже существует')
 
+
+
 ### 5. Формы для экзамена (Exam) ###
 class AddExamForm(FlaskForm):
     datetime = DateTimeField('Дата и время', format='%Y-%m-%d %H:%M', validators=[DataRequired()])
@@ -234,8 +314,8 @@ class AddExamForm(FlaskForm):
         super(AddExamForm, self).__init__(*args, **kwargs)
         self.subject_id.choices = [(s.id, s.name) for s in Subject.query.all()]
         self.group_id.choices = [(g.id, g.name) for g in StudentGroup.query.all()]
-        self.teacher_id.choices = [(t.id, t.name) for t in Teacher.query.all()]
-        self.room_id.choices = [(r.id, r.number) for r in Room.query.all()]
+        self.teacher_id.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
+        self.room_id.choices = [(r.id, f"{r.number} ({r.type})") for r in Room.query.all()]
 
 class EditExamForm(FlaskForm):
     exam_id = HiddenField('ID экзамена')
@@ -254,8 +334,12 @@ class EditExamForm(FlaskForm):
         super(EditExamForm, self).__init__(*args, **kwargs)
         self.subject_id.choices = [(s.id, s.name) for s in Subject.query.all()]
         self.group_id.choices = [(g.id, g.name) for g in StudentGroup.query.all()]
-        self.teacher_id.choices = [(t.id, t.name) for t in Teacher.query.all()]
-        self.room_id.choices = [(r.id, r.number) for r in Room.query.all()]
+        self.teacher_id.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
+        self.room_id.choices = [(r.id, f"{r.number} ({r.type})") for r in Room.query.all()]
+
+
+
+
 
 ### 6. Формы для настроек расписания (ScheduleSettings) ###
 class AddScheduleSettingsForm(FlaskForm):
@@ -304,29 +388,53 @@ class EditScheduleSettingsForm(FlaskForm):
         self.direction_id.choices = [(d.id, d.name) for d in Direction.query.all()]
 
 class AddTeacherForm(FlaskForm):
-    name = StringField('ФИО преподавателя', validators=[
-        DataRequired(),
-        Length(max=100, message="Максимум 100 символов")
+    first_name = StringField('Имя', validators=[
+        DataRequired(message="Поле обязательно для заполнения"),
+        Length(max=50, message="Максимум 50 символов")
+    ])
+    last_name = StringField('Фамилия', validators=[
+        DataRequired(message="Поле обязательно для заполнения"),
+        Length(max=50, message="Максимум 50 символов")
+    ])
+    patronymic = StringField('Отчество', validators=[
+        Length(max=50, message="Максимум 50 символов"),
+    ])
+    email = StringField('Электронная почта', validators=[
+        DataRequired(message="Поле обязательно для заполнения"),
+        Email(message="Некорректный формат email"),
+        Length(max=120, message="Максимум 120 символов")
     ])
     submit = SubmitField('Добавить преподавателя')
 
-    def validate_name(self, field):
-        if Teacher.query.filter_by(name=field.data).first():
-            raise ValidationError('Преподаватель с таким именем уже существует')
+    def validate_email(self, field):
+        if Teacher.query.filter_by(email=field.data).first():
+            raise ValidationError('Преподаватель с такой электронной почтой уже существует')
+
 
 class EditTeacherForm(FlaskForm):
     teacher_id = HiddenField('ID преподавателя')
-    name = StringField('ФИО преподавателя', validators=[
-        DataRequired(),
-        Length(max=100, message="Максимум 100 символов")
+    first_name = StringField('Имя', validators=[
+        DataRequired(message="Поле обязательно для заполнения"),
+        Length(max=50, message="Максимум 50 символов")
+    ])
+    last_name = StringField('Фамилия', validators=[
+        DataRequired(message="Поле обязательно для заполнения"),
+        Length(max=50, message="Максимум 50 символов")
+    ])
+    patronymic = StringField('Отчество', validators=[
+        Length(max=50, message="Максимум 50 символов")
+    ])
+    email = StringField('Электронная почта', validators=[
+        DataRequired(message="Поле обязательно для заполнения"),
+        Email(message="Некорректный формат email"),
+        Length(max=120, message="Максимум 120 символов")
     ])
     submit = SubmitField('Сохранить изменения')
 
-    def validate_name(self, field):
-        teacher = Teacher.query.filter_by(name=field.data).first()
+    def validate_email(self, field):
+        teacher = Teacher.query.filter_by(email=field.data).first()
         if teacher and teacher.id != int(self.teacher_id.data):
-            raise ValidationError('Преподаватель с таким именем уже существует')
-
+            raise ValidationError('Преподаватель с такой электронной почтой уже существует')
 
 class AddDirectionForm(FlaskForm):
     code = StringField('Код направления', validators=[

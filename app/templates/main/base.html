@@ -27,31 +27,37 @@
         </div>
     </header>
 
-    <main class="container my-5">
-        {% include "main/_flash.html" %}  <!-- Сообщения об ошибках или успехах -->
-        <div class="row">
-            <div class="col-md-8">
-                {% block content %}{% endblock %}
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Быстрые действия</h5>
-                        <ul class="list-unstyled">
-                            {% if current_user.is_authenticated %}
-                                {% if current_user.role == 'admin' %}
-                                    <li><a href="{{ url_for('admin.create_user') }}" class="text-decoration-none">Создать пользователя</a></li>
-                                {% endif %}
-                            {% else %}
-                                <li><a href="{{ url_for('auth.login') }}" class="text-decoration-none">Войти в систему</a></li>
-                                <li><a href="{{ url_for('auth.register') }}" class="text-decoration-none">Зарегистрироваться</a></li>
+<main class="container my-5">
+    {% include "main/_flash.html" %}
+    <div class="row">
+        <div class="col-md-8">
+            {% block content %}{% endblock %}
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Дополнительные действия</h5>
+                    <ul class="list-unstyled">
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.role in ['admin', 'worker'] %}
+                                <li><a href="{{ url_for('schedule.list_teachers') }}" class="text-decoration-none">Управление преподавателями</a></li>
+                                <li><a href="{{ url_for('schedule.list_rooms') }}" class="text-decoration-none">Управление аудиториями</a></li>
+                                <li><a href="{{ url_for('schedule.list_exams') }}" class="text-decoration-none">Управление Экзаменами</a></li>
                             {% endif %}
-                        </ul>
-                    </div>
+                            {% if current_user.role == 'admin' %}
+                                <li><a href="{{ url_for('admin.create_user') }}" class="text-decoration-none">Создать пользователя</a></li>
+                            {% endif %}
+                        {% else %}
+                            <li><a href="{{ url_for('auth.login') }}" class="text-decoration-none">Войти в систему</a></li>
+                            <li><a href="{{ url_for('auth.register') }}" class="text-decoration-none">Зарегистрироваться</a></li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
+</main>
+
 
     <footer class="bg-light py-4 mt-5">
         <div class="container text-center">

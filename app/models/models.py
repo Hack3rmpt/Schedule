@@ -16,28 +16,55 @@ class Specialization(db.Model):
     name = db.Column(db.String(100), nullable=False)  # "Программист"
     direction_id = db.Column(db.Integer, db.ForeignKey('direction.id'), nullable=False)
     direction = db.relationship('Direction', back_populates='specializations')
-    groups = db.relationship('StudentGroup', back_populates='specialization')
 
 
 ### 3. Модифицированная таблица групп ###
 class StudentGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    specialization_id = db.Column(db.Integer, db.ForeignKey('specialization.id'), nullable=False)
-    specialization = db.relationship('Specialization', back_populates='groups')
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)  # Исправлено на 'course.id'
+    course = db.relationship('Course', back_populates='groups')  # Связь с моделью Course
     exams = db.relationship('Exam', back_populates='group')
 
 
 ### 4. Таблица предметов (без изменений) ###
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    assessment_type = db.Column(db.String(100), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('name', 'course_id', name='unique_subject_name_per_course'),
+    )
+
+class Course(db.Model):
+    __tablename__ = 'course'
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.Integer, nullable=False)
+    specialization_id = db.Column(db.Integer, db.ForeignKey('specialization.id'), nullable=False)
+    specialization = db.relationship('Specialization', backref=db.backref('courses', lazy=True))
+    groups = db.relationship('StudentGroup', back_populates='course')  # Добавьте связь с группами
+    subjects = db.relationship('Subject', backref='course', lazy='dynamic')
+    def __repr__(self):
+        return f'<Course {self.number}>'
+
 
 
 ### 5. Таблица преподавателей (без изменений) ###
 class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    patronymic = db.Column(db.String(50))
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    @property
+    def full_name(self):
+        parts = [self.last_name, self.first_name]
+        if self.patronymic:
+            parts.append(self.patronymic)
+        return ' '.join(parts)
 
 
 ### 6. Таблица аудиторий (добавлен тип аудитории) ###
@@ -46,6 +73,10 @@ class Room(db.Model):
     number = db.Column(db.String(10), unique=True, nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
     type = db.Column(db.String(20), default='lecture')  # lecture/practice/lab
+
+    @property
+    def full_number(self):
+        return f"{self.number} ({self.type})"
 
 
 ### 7. Модифицированная таблица экзаменов ###

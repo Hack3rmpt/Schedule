@@ -1,0 +1,206 @@
+{% extends "main/base.html" %}
+
+{% block title %}Управление преподавателями - ScheduleApp{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Управление преподавателями</h1>
+
+    <!-- Отображение сообщений (например, успешное добавление или ошибки) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Блок для авторизованных пользователей -->
+    {% if current_user.is_authenticated %}
+        <!-- Блок для Администратора и Работника -->
+        {% if current_user.role in ['admin', 'worker'] %}
+            <!-- Форма добавления преподавателя -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Добавить преподавателя</h5>
+                    <form method="POST" action="{{ url_for('schedule.create_teacher') }}">
+                        {{ add_form.hidden_tag() }}
+
+                        <!-- Поле для имени -->
+                        <div class="mb-3">
+                            {{ add_form.first_name.label(class="form-label") }}
+                            {{ add_form.first_name(class="form-control" + (' is-invalid' if add_form.first_name.errors else '')) }}
+                            {% for error in add_form.first_name.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Поле для фамилии -->
+                        <div class="mb-3">
+                            {{ add_form.last_name.label(class="form-label") }}
+                            {{ add_form.last_name(class="form-control" + (' is-invalid' if add_form.last_name.errors else '')) }}
+                            {% for error in add_form.last_name.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Поле для отчества -->
+                        <div class="mb-3">
+                            {{ add_form.patronymic.label(class="form-label") }}
+                            {{ add_form.patronymic(class="form-control" + (' is-invalid' if add_form.patronymic.errors else '')) }}
+                            {% for error in add_form.patronymic.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                            <small class="text-muted">Необязательное поле</small>
+                        </div>
+
+                        <!-- Поле для email с валидацией -->
+                        <div class="mb-3">
+                            {{ add_form.email.label(class="form-label") }}
+                            {{ add_form.email(class="form-control" + (' is-invalid' if add_form.email.errors else '')) }}
+                            {% for error in add_form.email.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Добавить</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Список преподавателей -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Список преподавателей</h5>
+                    {% if teachers %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ФИО</th>
+                                        <th>Email</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for teacher in teachers %}
+                                        <tr>
+                                            <!-- Объединенные данные в одном столбце -->
+                                            <td>
+                                                {{ teacher.last_name }}
+                                                {{ teacher.first_name }}
+                                                {% if teacher.patronymic %}
+                                                    {{ teacher.patronymic }}
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ teacher.email }}</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <!-- Кнопка редактирования -->
+                                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                                            data-bs-target="#editModal{{ teacher.id }}" title="Редактировать">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+                                                    <!-- Форма удаления -->
+                                                    <form method="POST"
+                                                          action="{{ url_for('schedule.delete_teacher', teacher_id=teacher.id) }}">
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-danger"
+                                                                onclick="return confirm('Вы уверены? Действие нельзя отменить.')"
+                                                                title="Удалить">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted">Преподаватели отсутствуют.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Модальное окно редактирования преподавателя -->
+            {% for teacher in teachers %}
+            <div class="modal fade" id="editModal{{ teacher.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Редактирование преподавателя</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="POST" action="{{ url_for('schedule.edit_teacher', teacher_id=teacher.id) }}">
+                            <div class="modal-body">
+                                {{ add_form.hidden_tag() }}
+                                <!-- Скрытое поле для teacher_id -->
+                                <input type="hidden" name="teacher_id" value="{{ teacher.id }}">
+                                <!-- Поле для имени -->
+                                <div class="mb-3">
+                                    <label class="form-label">Имя</label>
+                                    <input type="text" class="form-control" name="first_name"
+                                           value="{{ teacher.first_name }}" required>
+                                </div>
+                                <!-- Поле для фамилии -->
+                                <div class="mb-3">
+                                    <label class="form-label">Фамилия</label>
+                                    <input type="text" class="form-control" name="last_name"
+                                           value="{{ teacher.last_name }}" required>
+                                </div>
+                                <!-- Поле для отчества -->
+                                <div class="mb-3">
+                                    <label class="form-label">Отчество</label>
+                                    <input type="text" class="form-control" name="patronymic"
+                                           value="{{ teacher.patronymic }}">
+                                </div>
+                                <!-- Поле для email -->
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="email"
+                                           value="{{ teacher.email }}" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+    <!-- Блок для неавторизованных пользователей -->
+    {% else %}
+        <div class="text-center mt-4">
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right"></i> Войти
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-lg ms-md-2 mt-2 mt-md-0">
+                    <i class="bi bi-person-plus"></i> Регистрация
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация всех модальных окон
+    var modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+        new bootstrap.Modal(modal);
+    });
+});
+</script>
+{% endblock %}

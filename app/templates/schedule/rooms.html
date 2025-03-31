@@ -1,0 +1,186 @@
+{% extends "main/base.html" %}
+
+{% block title %}Управление аудиториями - ScheduleApp{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Управление аудиториями</h1>
+
+    <!-- Отображение сообщений (например, успешное добавление или ошибки) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Блок для авторизованных пользователей -->
+    {% if current_user.is_authenticated %}
+        <!-- Блок для Администратора и Работника -->
+        {% if current_user.role in ['admin', 'worker'] %}
+            <!-- Форма добавления аудитории -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Добавить аудиторию</h5>
+                    <form method="POST" action="{{ url_for('schedule.list_rooms') }}">
+                        {{ add_form.hidden_tag() }}
+
+                        <!-- Поле для номера аудитории -->
+                        <div class="mb-3">
+                            {{ add_form.number.label(class="form-label") }}
+                            {{ add_form.number(class="form-control" + (' is-invalid' if add_form.number.errors else '')) }}
+                            {% for error in add_form.number.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Поле для вместимости -->
+                        <div class="mb-3">
+                            {{ add_form.capacity.label(class="form-label") }}
+                            {{ add_form.capacity(class="form-control" + (' is-invalid' if add_form.capacity.errors else '')) }}
+                            {% for error in add_form.capacity.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Поле для типа аудитории -->
+                        <div class="mb-3">
+                            {{ add_form.type.label(class="form-label") }}
+                            {{ add_form.type(class="form-control" + (' is-invalid' if add_form.type.errors else '')) }}
+                            {% for error in add_form.type.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Добавить</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Список аудиторий -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Список аудиторий</h5>
+                    {% if rooms %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Номер</th>
+                                        <th>Вместимость</th>
+                                        <th>Тип</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for room in rooms %}
+                                        <tr>
+                                            <td>{{ room.number }}</td>
+                                            <td>{{ room.capacity }}</td>
+                                            <td>{{ room.type }}</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <!-- Кнопка редактирования -->
+                                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                                            data-bs-target="#editModal{{ room.id }}" title="Редактировать">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+                                                    <!-- Форма удаления -->
+                                                    <form method="POST" action="{{ url_for('schedule.delete_room', room_id=room.id) }}">
+                                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-danger"
+                                                                onclick="return confirm('Вы уверены? Действие нельзя отменить.')"
+                                                                title="Удалить">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted">Аудитории отсутствуют.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Модальное окно редактирования аудитории -->
+            {% for room in rooms %}
+            <div class="modal fade" id="editModal{{ room.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Редактирование аудитории</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="POST" action="{{ url_for('schedule.edit_room', room_id=room.id) }}">
+                            <div class="modal-body">
+                                {{ edit_form.hidden_tag() }}
+                                <!-- Скрытое поле для room_id -->
+                                <input type="hidden" name="room_id" value="{{ room.id }}">
+                                <!-- Поле для номера аудитории -->
+                                <div class="mb-3">
+                                    <label class="form-label">Номер аудитории</label>
+                                    <input type="text" class="form-control" name="number" value="{{ room.number }}" required>
+                                </div>
+                                <!-- Поле для вместимости -->
+                                <div class="mb-3">
+                                    <label class="form-label">Вместимость</label>
+                                    <input type="number" class="form-control" name="capacity" value="{{ room.capacity }}" required>
+                                </div>
+                                <!-- Поле для типа аудитории -->
+                                <div class="mb-3">
+                                    <label class="form-label">Тип аудитории</label>
+                                    <select class="form-select" name="type" required>
+                                        <option value="lecture" {% if room.type == 'lecture' %}selected{% endif %}>Лекционная</option>
+                                        <option value="practice" {% if room.type == 'practice' %}selected{% endif %}>Практическая</option>
+                                        <option value="lab" {% if room.type == 'lab' %}selected{% endif %}>Лаборатория</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+    <!-- Блок для неавторизованных пользователей -->
+    {% else %}
+        <div class="text-center mt-4">
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right"></i> Войти
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-lg ms-md-2 mt-2 mt-md-0">
+                    <i class="bi bi-person-plus"></i> Регистрация
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация всех модальных окон
+    var modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+        new bootstrap.Modal(modal);
+    });
+});
+</script>
+{% endblock %}
