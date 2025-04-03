@@ -1,0 +1,57 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Просмотр расписания - ScheduleApp{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Сгенерированное расписание</h2>
+
+    <!-- Информация о курсе -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="card-title">Курс: {{ course.number }} ({{ course.specialization.name }})</h4>
+            <p class="card-text">Период: {{ start_date.strftime('%d.%m.%Y') }} - {{ end_date.strftime('%d.%m.%Y') }}</p>
+        </div>
+    </div>
+
+    <!-- Таблица с расписанием -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Дата и время</th>
+                            <th>Предмет</th>
+                            <th>Преподаватель</th>
+                            <th>Аудитория</th>
+                            <th>Корпус</th>
+                            <th>Группа</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exam in exams %}
+                        <tr>
+                            <td>{{ exam.datetime.strftime('%d.%m.%Y %H:%M') }}</td>
+                            <td>{{ exam.subject.name }}</td>
+                            <td>{{ exam.teacher.full_name }}</td>
+                            <td>{{ exam.room.full_number }}</td>
+                            <td>{{ exam.room.building }}</td>
+                            <td>{{ exam.group.name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопка назад -->
+    <div class="mt-4">
+        <a href="{{ url_for('schedule.list_courses', specialization_id=course.specialization_id) }}"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Назад к курсам
+        </a>
+    </div>
+</div>
+{% endblock %}

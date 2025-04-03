@@ -115,81 +115,59 @@
         </div>
 
         <!-- Модальное окно редактирования -->
-        <div class="modal fade" id="editModal{{ exam.id }}" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Редактирование экзамена</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <form method="POST" action="{{ url_for('schedule.edit_exam', exam_id=exam.id) }}">
-                        <div class="modal-body">
-                            {{ add_form.hidden_tag() }}
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Дата и время</label>
-                                    <input type="datetime-local" class="form-control" name="datetime"
-                                           value="{{ exam.datetime.strftime('%Y-%m-%dT%H:%M') }}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Длительность (мин)</label>
-                                    <input type="number" class="form-control" name="duration"
-                                           value="{{ exam.duration }}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Предмет</label>
-                                    <select class="form-select" name="subject_id">
-                                        {% for subject in subjects %}
-                                        <option value="{{ subject.id }}"
-                                            {% if subject.id == exam.subject_id %}selected{% endif %}>
-                                            {{ subject.name }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Группа</label>
-                                    <select class="form-select" name="group_id">
-                                        {% for group in groups %}
-                                        <option value="{{ group.id }}"
-                                            {% if group.id == exam.group_id %}selected{% endif %}>
-                                            {{ group.name }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Преподаватель</label>
-                                    <select class="form-select" name="teacher_id">
-                                        {% for teacher in teachers %}
-                                        <option value="{{ teacher.id }}"
-                                            {% if teacher.id == exam.teacher_id %}selected{% endif %}>
-                                            {{ teacher.full_name }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Аудитория</label>
-                                    <select class="form-select" name="room_id">
-                                        {% for room in rooms %}
-                                        <option value="{{ room.id }}"
-                                            {% if room.id == exam.room_id %}selected{% endif %}>
-                                            {{ room.number }} ({{ room.type }})
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                        </div>
-                    </form>
-                </div>
+        <!-- Модальное окно редактирования -->
+<div class="modal fade" id="editModal{{ exam.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактирование экзамена</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            <form method="POST" action="{{ url_for('schedule.edit_exam', exam_id=exam.id) }}">
+                {{ edit_form.hidden_tag() }}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Дата и время -->
+                        <div class="col-md-6">
+                            {{ edit_form.datetime.label(class="form-label") }}
+                            {{ edit_form.datetime(class="form-control") }}
+                        </div>
+                        <!-- Длительность -->
+                        <div class="col-md-6">
+                            {{ edit_form.duration.label(class="form-label") }}
+                            {{ edit_form.duration(class="form-control") }}
+                        </div>
+                        <!-- Предмет -->
+                        <div class="col-md-6">
+                            {{ edit_form.subject_id.label(class="form-label") }}
+                            {{ edit_form.subject_id(class="form-select") }}
+                        </div>
+                        <!-- Группа -->
+                        <div class="col-md-6">
+                            {{ edit_form.group_id.label(class="form-label") }}
+                            {{ edit_form.group_id(class="form-select") }}
+                        </div>
+                        <!-- Преподаватель -->
+                        <div class="col-md-6">
+                            {{ edit_form.teacher_id.label(class="form-label") }}
+                            {{ edit_form.teacher_id(class="form-select") }}
+                        </div>
+                        <!-- Аудитория -->
+                        <div class="col-md-6">
+                            {{ edit_form.room_id.label(class="form-label") }}
+                            {{ edit_form.room_id(class="form-select") }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    {{ edit_form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
         </div>
+    </div>
+</div>
+
 
         <!-- Модальное окно удаления -->
         <div class="modal fade" id="deleteModal{{ exam.id }}" tabindex="-1">

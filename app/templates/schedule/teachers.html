@@ -105,15 +105,15 @@
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
                                                     <!-- Форма удаления -->
-                                                    <form method="POST"
-                                                          action="{{ url_for('schedule.delete_teacher', teacher_id=teacher.id) }}">
-                                                        <button type="submit"
-                                                                class="btn btn-sm btn-danger"
-                                                                onclick="return confirm('Вы уверены? Действие нельзя отменить.')"
-                                                                title="Удалить">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </form>
+                                                    <form method="POST" action="{{ url_for('schedule.delete_teacher', teacher_id=teacher.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit"
+            class="btn btn-sm btn-danger"
+            onclick="return confirm('Вы уверены? Действие нельзя отменить.')"
+            title="Удалить">
+        <i class="bi bi-trash"></i>
+    </button>
+</form>
                                                 </div>
                                             </td>
                                         </tr>

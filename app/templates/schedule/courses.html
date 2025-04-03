@@ -1,4 +1,4 @@
-{% extends "main/base.html" %}
+{% extends 'main/base.html' %}
 
 {% block title %}Управление курсами - ScheduleApp{% endblock %}
 
@@ -71,6 +71,25 @@
                                class="btn btn-outline-primary">
                                 <i class="bi bi-people me-2"></i>
                                 Группы
+                            </a>
+                            <a href="{{ url_for('schedule.list_subjects', course_id=course.id) }}"
+                               class="btn btn-outline-success">
+                                <i class="bi bi-people me-2"></i>
+                                Предметы
+                            </a>
+
+                            <!-- Новая кнопка для генерации расписания -->
+                            <a href="{{ url_for('schedule.generate_for_course', course_id=course.id) }}"
+                               class="btn btn-outline-info">
+                                <i class="bi bi-calendar-plus me-2"></i>
+                                Генерация расписания
+                            </a>
+
+                            <!-- Новая кнопка для просмотра расписания -->
+                            <a href="{{ url_for('schedule.view_schedule', course_id=course.id) }}"
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-calendar-check me-2"></i>
+                                Просмотр расписания
                             </a>
 
                             <button class="btn btn-outline-warning"

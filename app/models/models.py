@@ -27,16 +27,43 @@ class StudentGroup(db.Model):
     exams = db.relationship('Exam', back_populates='group')
 
 
-### 4. Таблица предметов (без изменений) ###
+### Смежная
+teacher_subject = db.Table('teacher_subject',
+    db.Column('teacher_id', db.Integer, db.ForeignKey('teacher.id'), primary_key=True),
+    db.Column('subject_id', db.Integer, db.ForeignKey('subject.id'), primary_key=True)
+)
+### 4. Таблица предметов (без изменений)
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     assessment_type = db.Column(db.String(100), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
 
+    # Связь с учителями
+    teachers = db.relationship('Teacher', secondary=teacher_subject, back_populates='subjects')
+
     __table_args__ = (
         db.UniqueConstraint('name', 'course_id', name='unique_subject_name_per_course'),
     )
+
+
+### 5. Таблица преподавателей (без изменений) ###
+class Teacher(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    patronymic = db.Column(db.String(50))
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    # Связь с предметами
+    subjects = db.relationship('Subject', secondary=teacher_subject, back_populates='teachers')
+
+    @property
+    def full_name(self):
+        parts = [self.last_name, self.first_name]
+        if self.patronymic:
+            parts.append(self.patronymic)
+        return ' '.join(parts)
 
 class Course(db.Model):
     __tablename__ = 'course'
@@ -51,28 +78,13 @@ class Course(db.Model):
 
 
 
-### 5. Таблица преподавателей (без изменений) ###
-class Teacher(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(50), nullable=False)
-    last_name = db.Column(db.String(50), nullable=False)
-    patronymic = db.Column(db.String(50))
-    email = db.Column(db.String(120), unique=True, nullable=False)
-
-    @property
-    def full_name(self):
-        parts = [self.last_name, self.first_name]
-        if self.patronymic:
-            parts.append(self.patronymic)
-        return ' '.join(parts)
-
-
 ### 6. Таблица аудиторий (добавлен тип аудитории) ###
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.String(10), unique=True, nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
     type = db.Column(db.String(20), default='lecture')  # lecture/practice/lab
+    building = db.Column(db.String(50), default='Корпус на ул. Нежинской 7')
 
     @property
     def full_number(self):
@@ -96,6 +108,11 @@ class Exam(db.Model):
     group = db.relationship('StudentGroup', back_populates='exams')
     teacher = db.relationship('Teacher', backref=db.backref('exams', lazy=True))
     room = db.relationship('Room', backref=db.backref('exams', lazy=True))
+
+    # Свойство для получения курса через группу
+    @property
+    def course(self):
+        return self.group.course
 
 
 ### 8. Модифицированные настройки (привязка к направлению) ###

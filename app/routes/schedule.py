@@ -9,11 +9,11 @@ from .decorators import admin_required
 from app.forms import (
     DirectionForm, AddSpecializationForm, EditSpecializationForm, AddGroupForm, EditGroupForm, AddRoomForm,
     EditRoomForm, AddTeacherForm, EditTeacherForm, AddExamForm, EditExamForm, EditSubjectForm, AddSubjectForm,
-    AddCourseForm, EditCourseForm
+    AddCourseForm, EditCourseForm, GenerateScheduleForm
 )
 from app.models.models import (
     Direction, Specialization, StudentGroup,
-    Subject, Room, Exam, Teacher, Course
+    Subject, Room, Exam, Teacher, Course, ScheduleSettings
 )
 
 schedule = Blueprint('schedule', __name__, url_prefix='/schedule')
@@ -234,9 +234,8 @@ def list_subjects(course_id):
     course = Course.query.get_or_404(course_id)
     add_form = AddSubjectForm()
     add_form.course_id.choices = [(c.id, f"Курс {c.number}") for c in Course.query.all()]
-    return render_template('schedule/subjects.html',
-                           course=course,
-                           add_form=add_form)
+    add_form.teachers.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
+    return render_template('schedule/subjects.html', course=course, add_form=add_form)
 
 
 @schedule.route('/subjects/create', methods=['POST'])
@@ -244,6 +243,7 @@ def list_subjects(course_id):
 def create_subject():
     form = AddSubjectForm()
     form.course_id.choices = [(c.id, f"Курс {c.number}") for c in Course.query.all()]
+    form.teachers.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
 
     if form.validate_on_submit():
         subject = Subject(
@@ -253,6 +253,13 @@ def create_subject():
         )
         try:
             db.session.add(subject)
+            db.session.commit()
+
+            # Добавление преподавателей
+            teacher_ids = form.teachers.data
+            teachers = Teacher.query.filter(Teacher.id.in_(teacher_ids)).all()
+            subject.teachers.extend(teachers)
+
             db.session.commit()
             flash('Предмет успешно создан', 'success')
         except IntegrityError:
@@ -273,10 +280,19 @@ def edit_subject(subject_id):
 
     # Заполняем список курсов для выбора
     form.course_id.choices = [(c.id, f"Курс {c.number}") for c in Course.query.all()]
+    form.teachers.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
 
     if form.validate_on_submit():
         try:
-            form.populate_obj(subject)
+            # Обновляем основные поля
+            subject.name = form.name.data
+            subject.course_id = form.course_id.data
+            subject.assessment_type = form.assessment_type.data
+
+            # Обрабатываем поле teachers
+            teacher_ids = form.teachers.data
+            subject.teachers = Teacher.query.filter(Teacher.id.in_(teacher_ids)).all()
+
             db.session.commit()
             flash('Изменения сохранены', 'success')
         except IntegrityError:
@@ -286,6 +302,7 @@ def edit_subject(subject_id):
         handle_form_errors(form)
 
     return redirect(url_for('schedule.list_subjects', course_id=form.course_id.data))
+
 
 
 @schedule.route('/subjects/<int:subject_id>/delete', methods=['POST'])
@@ -472,19 +489,19 @@ def list_rooms():
     return render_template('schedule/rooms.html', rooms=rooms, add_form=add_form, edit_form=edit_form)
 
 # Роут для редактирования аудитории
-@schedule.route('/edit_room/<int:room_id>', methods=['POST'])
+@schedule.route('/edit_room/<int:room_id>', methods=['GET', 'POST'])
 def edit_room(room_id):
     room = Room.query.get_or_404(room_id)
-    edit_form = EditRoomForm(obj=room)
-    if edit_form.validate_on_submit():
-        room.number = edit_form.number.data
-        room.capacity = edit_form.capacity.data
-        room.type = edit_form.type.data
+    form = EditRoomForm(obj=room)  # Автоматическое заполнение из объекта
+    form.room_id.data = room.id  # Явное установка room_id
+
+    if form.validate_on_submit():
+        form.populate_obj(room)  # Обновление объекта из формы
         db.session.commit()
-        flash('Аудитория успешно обновлена!', 'success')
+        flash('Аудитория успешно обновлена', 'success')
         return redirect(url_for('schedule.list_rooms'))
 
-    return redirect(url_for('schedule.list_rooms'))
+    return render_template('rooms.html', edit_form=form)
 
 # Роут для удаления аудитории
 @schedule.route('/delete_room/<int:room_id>', methods=['POST'])
@@ -505,7 +522,11 @@ def delete_room(room_id):
 def list_exams():
     exams = Exam.query.all()
     add_form = AddExamForm()
-    return render_template('schedule/exams.html', exams=exams, add_form=add_form)
+    edit_form = EditExamForm()  # Добавьте эту строку
+    return render_template('schedule/exams.html',
+                         exams=exams,
+                         add_form=add_form,
+                         edit_form=edit_form)  # Передаем форму редактирования
 
 
 @schedule.route('/exams/create', methods=['GET', 'POST'])
@@ -534,11 +555,11 @@ def create_exam():
     return redirect(url_for('schedule.list_exams'))
 
 
-@schedule.route('/exams/edit/<int:exam_id>', methods=['GET', 'POST'])
+@schedule.route('/exams/edit/<int:exam_id>', methods=['POST'])  # Только POST
 @login_required
 def edit_exam(exam_id):
     exam = Exam.query.get_or_404(exam_id)
-    form = EditExamForm(obj=exam)
+    form = EditExamForm(exam=exam)  # Передаем экзамен в форму
 
     if form.validate_on_submit():
         try:
@@ -555,6 +576,7 @@ def edit_exam(exam_id):
             flash('Ошибка при обновлении экзамена', 'danger')
     else:
         handle_form_errors(form)
+
     return redirect(url_for('schedule.list_exams'))
 
 
@@ -570,3 +592,51 @@ def delete_exam(exam_id):
         db.session.rollback()
         flash(f'Ошибка при удалении экзамена: {str(e)}', 'danger')
     return redirect(url_for('schedule.list_exams'))
+
+from app.services.schedule_generator import ScheduleGenerator
+
+@schedule.route('/courses/<int:course_id>/generate', methods=['GET', 'POST'])
+@login_required
+def generate_for_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    form = GenerateScheduleForm()
+
+    if form.validate_on_submit():
+        try:
+            generator = ScheduleGenerator(course_id)
+            generated = generator.generate(
+                start_date=form.start_date.data,
+                end_date=form.end_date.data,
+                max_per_day=form.max_exams_per_day.data,
+                min_interval=form.min_days_between_exams.data
+            )
+
+            flash(f'Сгенерировано {generated} экзаменов', 'success')
+            return redirect(url_for('schedule.list_courses',
+                                    specialization_id=course.specialization_id))
+
+        except Exception as e:
+            flash(f'Ошибка генерации: {str(e)}', 'danger')
+
+    return render_template('schedule/generate.html',
+                           course=course,
+                           form=form)
+
+@schedule.route('/view_schedule/<int:course_id>')
+@login_required
+def view_schedule(course_id):
+    # Получаем данные о курсе
+    course = Course.query.get_or_404(course_id)
+
+    # Получаем сгенерированное расписание через связь с группами
+    exams = Exam.query.join(StudentGroup).filter(StudentGroup.course_id == course_id).order_by(Exam.datetime).all()
+
+    # Определяем период расписания
+    start_date = exams[0].datetime if exams else None
+    end_date = exams[-1].datetime if exams else None
+
+    return render_template('schedule/view_schedule.html',
+                           course=course,
+                           exams=exams,
+                           start_date=start_date,
+                           end_date=end_date)

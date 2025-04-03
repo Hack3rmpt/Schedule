@@ -1,0 +1,98 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Генерация расписания экзаменов</h2>
+    <h4 class="mb-4">Курс: {{ course.number }} ({{ course.specialization.name }})</h4>
+
+    <!-- Форма генерации -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.start_date.label }}
+                            {{ form.start_date(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.end_date.label }}
+                            {{ form.end_date(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.max_exams_per_day.label }}
+                            {{ form.max_exams_per_day(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.min_days_between_exams.label }}
+                            {{ form.min_days_between_exams(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calendar-alt"></i> Сгенерировать расписание
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Существующее расписание -->
+    {% if exams %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Текущее расписание экзаменов</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Дата и время</th>
+                            <th>Предмет</th>
+                            <th>Преподаватель</th>
+                            <th>Аудитория</th>
+                            <th>Группа</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exam in exams %}
+                        <tr>
+                            <td>{{ exam.datetime.strftime('%d.%m.%Y %H:%M') }}</td>
+                            <td>{{ exam.subject.name }}</td>
+                            <td>{{ exam.teacher.full_name }}</td>
+                            <td>{{ exam.room.full_number }}</td>
+                            <td>{{ exam.group.name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Нет сгенерированного расписания для этого курса
+    </div>
+    {% endif %}
+
+    <!-- Кнопка назад -->
+    <div class="mt-4">
+        <a href="{{ url_for('schedule.list_courses', specialization_id=course.specialization_id) }}"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Назад к курсам
+        </a>
+    </div>
+</div>
+{% endblock %}

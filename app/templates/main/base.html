@@ -42,7 +42,7 @@
                             {% if current_user.role in ['admin', 'worker'] %}
                                 <li><a href="{{ url_for('schedule.list_teachers') }}" class="text-decoration-none">Управление преподавателями</a></li>
                                 <li><a href="{{ url_for('schedule.list_rooms') }}" class="text-decoration-none">Управление аудиториями</a></li>
-                                <li><a href="{{ url_for('schedule.list_exams') }}" class="text-decoration-none">Управление Экзаменами</a></li>
+                                <li><a href="{{ url_for('schedule.list_exams') }}" class="text-decoration-none">Управление экзаменами</a></li>
                             {% endif %}
                             {% if current_user.role == 'admin' %}
                                 <li><a href="{{ url_for('admin.create_user') }}" class="text-decoration-none">Создать пользователя</a></li>

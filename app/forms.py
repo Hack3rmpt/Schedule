@@ -162,6 +162,8 @@ class EditCourseForm(FlaskForm):
             if existing:
                 raise ValidationError('Курс с таким номером уже существует для этой специальности')
 
+from wtforms import SelectMultipleField
+
 class AddSubjectForm(FlaskForm):
     name = StringField(
         'Название предмета',
@@ -178,6 +180,11 @@ class AddSubjectForm(FlaskForm):
     assessment_type = SelectField(
         'Тип аттестации',
         choices=[('Экзамен', 'Экзамен'), ('Зачет', 'Зачет')],
+        validators=[DataRequired()]
+    )
+    teachers = SelectMultipleField(
+        'Преподаватели',
+        coerce=int,
         validators=[DataRequired()]
     )
     submit = SubmitField('Добавить')
@@ -209,6 +216,11 @@ class EditSubjectForm(FlaskForm):
         choices=[('Экзамен', 'Экзамен'), ('Зачет', 'Зачет')],
         validators=[DataRequired()]
     )
+    teachers = SelectMultipleField(
+        'Преподаватели',
+        coerce=int,
+        validators=[DataRequired()]
+    )
     submit = SubmitField('Обновить')
 
     def validate_name(self, field):
@@ -218,6 +230,7 @@ class EditSubjectForm(FlaskForm):
         ).first()
         if subject and subject.id != int(self.subject_id.data):
             raise ValidationError('Название предмета должно быть уникальным для курса')
+
 
 ### 3. Формы для группы (StudentGroup) ###
 class AddGroupForm(FlaskForm):
@@ -267,32 +280,47 @@ class AddRoomForm(FlaskForm):
         ('practice', 'Практическая'),
         ('lab', 'Лаборатория')
     ], validators=[DataRequired()])
+    building = SelectField('Корпус', choices=[
+        ('Корпус на ул. Нежинской 7', 'Корпус на ул. Нежинской 7'),
+        ('Корпус на ул. Нахимовский проспект 21', 'Корпус на ул. Нахимовский проспект 21')
+    ], validators=[DataRequired()])
     submit = SubmitField('Добавить аудиторию')
 
     def validate_number(self, field):
         if Room.query.filter_by(number=field.data).first():
             raise ValidationError('Аудитория с таким номером уже существует')
 
+
 class EditRoomForm(FlaskForm):
-    room_id = HiddenField('ID аудитории')
+    room_id = HiddenField('ID аудитории', validators=[DataRequired()])  # Добавлен валидатор
     number = StringField('Номер аудитории', validators=[
-        DataRequired(),
+        DataRequired(message="Поле обязательно для заполнения"),
         Length(max=10, message="Максимум 10 символов")
     ])
     capacity = IntegerField('Вместимость', validators=[
-        DataRequired(),
+        DataRequired(message="Поле обязательно для заполнения"),
         NumberRange(min=1, max=1000, message="Допустимые значения 1-1000")
     ])
     type = SelectField('Тип аудитории', choices=[
         ('lecture', 'Лекционная'),
         ('practice', 'Практическая'),
         ('lab', 'Лаборатория')
-    ], validators=[DataRequired()])
+    ], validators=[DataRequired(message="Выберите тип аудитории")])
+    building = SelectField('Корпус', choices=[
+        ('Корпус на ул. Нежинской 7', 'Корпус на ул. Нежинской 7'),
+        ('Корпус на ул. Нахимовский проспект 21', 'Корпус на ул. Нахимовский проспект 21')
+    ], validators=[DataRequired(message="Выберите корпус")])
     submit = SubmitField('Сохранить изменения')
 
     def validate_number(self, field):
+        # Проверяем, что room_id.data существует и является числом
+        try:
+            room_id = int(self.room_id.data) if self.room_id.data else None
+        except ValueError:
+            raise ValidationError('Неверный идентификатор аудитории')
+
         room = Room.query.filter_by(number=field.data).first()
-        if room and room.id != int(self.room_id.data):
+        if room and room.id != room_id:
             raise ValidationError('Аудитория с таким номером уже существует')
 
 
@@ -330,12 +358,20 @@ class EditExamForm(FlaskForm):
     room_id = SelectField('Аудитория', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Сохранить изменения')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, exam=None, *args, **kwargs):  # Добавьте параметр exam
         super(EditExamForm, self).__init__(*args, **kwargs)
         self.subject_id.choices = [(s.id, s.name) for s in Subject.query.all()]
         self.group_id.choices = [(g.id, g.name) for g in StudentGroup.query.all()]
         self.teacher_id.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
         self.room_id.choices = [(r.id, f"{r.number} ({r.type})") for r in Room.query.all()]
+
+        if exam:  # Заполняем данные формы из объекта экзамена
+            self.datetime.data = exam.datetime
+            self.duration.data = exam.duration
+            self.subject_id.data = exam.subject_id
+            self.group_id.data = exam.group_id
+            self.teacher_id.data = exam.teacher_id
+            self.room_id.data = exam.room_id
 
 
 
@@ -467,3 +503,20 @@ class EditDirectionForm(FlaskForm):
         direction = Direction.query.filter_by(code=field.data).first()
         if direction and direction.id != int(self.direction_id.data):
             raise ValidationError('Направление с таким кодом уже существует')
+
+
+# class GenerateScheduleForm(FlaskForm):
+#     direction_id = SelectField('Направление', coerce=int, validators=[DataRequired()])
+#     start_date = DateField('Начальная дата', validators=[DataRequired()])
+#     end_date = DateField('Конечная дата', validators=[DataRequired()])
+#     max_exams_per_day = IntegerField('Макс. экзаменов в день', validators=[DataRequired()])
+#     min_days_between_exams = IntegerField('Минимальный интервал', validators=[DataRequired()])
+#     submit = SubmitField('Сгенерировать')
+
+
+class GenerateScheduleForm(FlaskForm):
+    start_date = DateField('Дата начала', default=datetime.today)
+    end_date = DateField('Дата окончания', default=datetime.today)
+    max_exams_per_day = IntegerField('Макс. экзаменов в день', default=3)
+    min_days_between_exams = IntegerField('Минимальный интервал (дни)', default=1)
+    submit = SubmitField('Сгенерировать')

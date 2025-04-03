@@ -25,7 +25,7 @@
             <!-- Форма добавления аудитории -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Добавить аудиторию</h5>
+                    <h5 class="card-title">Добавить аудиториу</h5>
                     <form method="POST" action="{{ url_for('schedule.list_rooms') }}">
                         {{ add_form.hidden_tag() }}
 
@@ -56,6 +56,15 @@
                             {% endfor %}
                         </div>
 
+                        <!-- Поле для корпуса -->
+                        <div class="mb-3">
+                            {{ add_form.building.label(class="form-label") }}
+                            {{ add_form.building(class="form-control" + (' is-invalid' if add_form.building.errors else '')) }}
+                            {% for error in add_form.building.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
                         <button type="submit" class="btn btn-primary">Добавить</button>
                     </form>
                 </div>
@@ -73,6 +82,7 @@
                                         <th>Номер</th>
                                         <th>Вместимость</th>
                                         <th>Тип</th>
+                                        <th>Корпус</th>
                                         <th>Действия</th>
                                     </tr>
                                 </thead>
@@ -82,6 +92,7 @@
                                             <td>{{ room.number }}</td>
                                             <td>{{ room.capacity }}</td>
                                             <td>{{ room.type }}</td>
+                                            <td>{{ room.building }}</td>
                                             <td>
                                                 <div class="d-flex gap-2">
                                                     <!-- Кнопка редактирования -->
@@ -114,47 +125,55 @@
 
             <!-- Модальное окно редактирования аудитории -->
             {% for room in rooms %}
-            <div class="modal fade" id="editModal{{ room.id }}" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Редактирование аудитории</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <form method="POST" action="{{ url_for('schedule.edit_room', room_id=room.id) }}">
-                            <div class="modal-body">
-                                {{ edit_form.hidden_tag() }}
-                                <!-- Скрытое поле для room_id -->
-                                <input type="hidden" name="room_id" value="{{ room.id }}">
-                                <!-- Поле для номера аудитории -->
-                                <div class="mb-3">
-                                    <label class="form-label">Номер аудитории</label>
-                                    <input type="text" class="form-control" name="number" value="{{ room.number }}" required>
-                                </div>
-                                <!-- Поле для вместимости -->
-                                <div class="mb-3">
-                                    <label class="form-label">Вместимость</label>
-                                    <input type="number" class="form-control" name="capacity" value="{{ room.capacity }}" required>
-                                </div>
-                                <!-- Поле для типа аудитории -->
-                                <div class="mb-3">
-                                    <label class="form-label">Тип аудитории</label>
-                                    <select class="form-select" name="type" required>
-                                        <option value="lecture" {% if room.type == 'lecture' %}selected{% endif %}>Лекционная</option>
-                                        <option value="practice" {% if room.type == 'practice' %}selected{% endif %}>Практическая</option>
-                                        <option value="lab" {% if room.type == 'lab' %}selected{% endif %}>Лаборатория</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                            </div>
-                        </form>
+<div class="modal fade" id="editModal{{ room.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактирование аудитории</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('schedule.edit_room', room_id=room.id) }}">
+                <div class="modal-body">
+                    {{ edit_form.hidden_tag() }}
+                    <!-- Скрытое поле для room_id -->
+                    <input type="hidden" name="room_id" value="{{ room.id }}">
+                    <!-- Поле для номера аудитории -->
+                    <div class="mb-3">
+                        <label class="form-label">Номер аудитории</label>
+                        <input type="text" class="form-control" name="number" value="{{ room.number }}" required>
+                    </div>
+                    <!-- Поле для вместимости -->
+                    <div class="mb-3">
+                        <label class="form-label">Вместимость</label>
+                        <input type="number" class="form-control" name="capacity" value="{{ room.capacity }}" required>
+                    </div>
+                    <!-- Поле для типа аудитории -->
+                    <div class="mb-3">
+                        <label class="form-label">Тип аудитории</label>
+                        <select class="form-select" name="type" required>
+                            <option value="lecture" {% if room.type == 'lecture' %}selected{% endif %}>Лекционная</option>
+                            <option value="practice" {% if room.type == 'practice' %}selected{% endif %}>Практическая</option>
+                            <option value="lab" {% if room.type == 'lab' %}selected{% endif %}>Лаборатория</option>
+                        </select>
+                    </div>
+                    <!-- Поле для корпуса -->
+                    <div class="mb-3">
+                        <label class="form-label">Корпус</label>
+                        <select class="form-select" name="building" required>
+                            <option value="Корпус на ул. Нежинской 7" {% if room.building == 'Корпус на ул. Нежинской 7' %}selected{% endif %}>Корпус на ул. Нежинской 7</option>
+                            <option value="Корпус на ул. Нахимовский проспект 21" {% if room.building == 'Корпус на ул. Нахимовский проспект 21' %}selected{% endif %}>Корпус на ул. Нахимовский проспект 21</option>
+                        </select>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
         {% endif %}
 
     <!-- Блок для неавторизованных пользователей -->
