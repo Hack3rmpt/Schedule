@@ -35,11 +35,11 @@ def create_app():
         admin_user = User.query.filter_by(role='admin').first()
         if not admin_user:
             admin = User(
-                username="admin",  # Имя пользователя
-                email="admin@example.com",  # Email
+                username="admin",
+                email="admin@example.com",
                 role="admin"  # Роль
             )
-            admin.set_password("admin123")  # Установите надежный пароль!
+            admin.set_password("admin123")
             db.session.add(admin)
             db.session.commit()
             print("Суперпользователь создан: admin@example.com / admin123")

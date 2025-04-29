@@ -22,6 +22,8 @@
                         <div class="col-md-6">
                             <ul class="list-unstyled">
                                 <li><a href="{{ url_for('schedule.list_directions') }}" class="text-decoration-none">Управление направлениями</a></li>
+                                <li><a href="{{ url_for('admin.create_user') }}" class="text-decoration-none">Управление пользователями</a></li>
+
                             </ul>
                         </div>
                         <div class="col-md-6">
@@ -41,6 +43,9 @@
                     <div class="row">
                         <div class="col-md-6">
                             <ul class="list-unstyled">
+                                <li><a href="{{ url_for('schedule.list_teachers') }}" class="text-decoration-none">Управление преподавательским составом</a></li>
+                                <li><a href="{{ url_for('schedule.list_rooms') }}" class="text-decoration-none">Управление аудиториями</a></li>
+                                <li><a href="{{ url_for('schedule.list_exams') }}" class="text-decoration-none">Управление экзаменами</a></li>
                             </ul>
                         </div>
                     </div>

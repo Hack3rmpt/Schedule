@@ -139,9 +139,7 @@
                         <form method="POST" action="{{ url_for('schedule.edit_teacher', teacher_id=teacher.id) }}">
                             <div class="modal-body">
                                 {{ add_form.hidden_tag() }}
-                                <!-- Скрытое поле для teacher_id -->
                                 <input type="hidden" name="teacher_id" value="{{ teacher.id }}">
-                                <!-- Поле для имени -->
                                 <div class="mb-3">
                                     <label class="form-label">Имя</label>
                                     <input type="text" class="form-control" name="first_name"
