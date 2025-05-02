@@ -5,32 +5,40 @@
 {% block content %}
 <div class="container py-4">
     <h2 class="mb-4 border-bottom pb-2">
-        <a href="{{ url_for('schedule.list_directions') }}" class="text-decoration-none">
-            <i class="bi bi-arrow-left"></i>
-        </a>
-        Управление направлениями
+        <span class="ms-2">Управление направлениями</span>
     </h2>
-
 
     <!-- Форма для добавления нового направления -->
     {% if current_user.role == 'admin' %}
     <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">
+            <i class="bi bi-plus-circle"></i> Добавить новое направление
+        </div>
         <div class="card-body">
-            <h5 class="card-title">Добавить новое направление</h5>
             <form method="POST" action="{{ url_for('schedule.create_direction') }}">
                 {{ add_form.hidden_tag() }}
                 <div class="row g-3">
                     <div class="col-md-6">
                         {{ add_form.name.label(class="form-label") }}
-                        {{ add_form.name(class="form-control") }}
+                        {{ add_form.name(class="form-control", placeholder="Введите название направления") }}
+                        {% if add_form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ add_form.name.errors[0] }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="col-md-4">
                         {{ add_form.code.label(class="form-label") }}
-                        {{ add_form.code(class="form-control") }}
+                        {{ add_form.code(class="form-control", placeholder="Введите код направления") }}
+                        {% if add_form.code.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ add_form.code.errors[0] }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-plus-lg"></i> Добавить
+                            <i class="bi bi-plus-lg me-2"></i>Добавить
                         </button>
                     </div>
                 </div>
@@ -42,23 +50,40 @@
     <!-- Форма для редактирования направления -->
     {% if form %}
     <div class="card shadow-sm mb-5">
+        <div class="card-header bg-warning text-dark">
+            <i class="bi bi-pencil-square"></i> Редактировать направление
+        </div>
         <div class="card-body">
-            <h5 class="card-title">Редактировать направление</h5>
             <form method="POST" action="{{ url_for('schedule.edit_direction', direction_id=form.current_id) }}">
                 {{ form.hidden_tag() }}
                 <div class="row g-3">
                     <div class="col-md-6">
                         {{ form.name.label(class="form-label") }}
-                        {{ form.name(class="form-control") }}
+                        {{ form.name(class="form-control", placeholder="Введите новое название") }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.name.errors[0] }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="col-md-4">
                         {{ form.code.label(class="form-label") }}
-                        {{ form.code(class="form-control") }}
+                        {{ form.code(class="form-control", placeholder="Введите новый код") }}
+                        {% if form.code.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.code.errors[0] }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-warning w-100">
-                            <i class="bi bi-save"></i> Сохранить
-                        </button>
+                        <div class="d-grid gap-2 w-100">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save me-2"></i>Сохранить
+                            </button>
+                            <a href="{{ url_for('schedule.list_directions') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Отмена
+                            </a>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -68,39 +93,55 @@
 
     <!-- Список направлений -->
     <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">
+            <i class="bi bi-list-ul"></i> Список направлений
+        </div>
         <div class="card-body">
+            {% if directions %}
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Код</th>
                             <th>Название</th>
+                            {% if current_user.role == 'admin' %}
                             <th class="text-end">Действия</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for direction in directions %}
                         <tr>
-                            <td>{{ direction.code }}</td>
+                            <td><strong>{{ direction.code }}</strong></td>
                             <td>{{ direction.name }}</td>
+                            {% if current_user.role == 'admin' %}
                             <td class="text-end">
-                                {% if current_user.role == 'admin' %}
-                                <a href="{{ url_for('schedule.edit_direction', direction_id=direction.id) }}" class="btn btn-sm btn-outline-warning me-2">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <form class="d-inline" method="POST" action="{{ url_for('schedule.delete_direction', direction_id=direction.id) }}">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вы уверены?')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                                {% endif %}
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{{ url_for('schedule.edit_direction', direction_id=direction.id) }}"
+                                       class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-pencil me-1"></i>Редактировать
+                                    </a>
+                                    <form method="POST" action="{{ url_for('schedule.delete_direction', direction_id=direction.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Вы уверены, что хотите удалить направление {{ direction.name }} ({{ direction.code }})?')">
+                                            <i class="bi bi-trash me-1"></i>Удалить
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle"></i> Нет доступных направлений
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -109,22 +150,25 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const editButtons = document.querySelectorAll('.btn-outline-warning');
-    editButtons.forEach(button => {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
-            const directionId = this.getAttribute('href').split('/').pop();
-            fetch(`/schedule/directions/${directionId}/edit`)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const editForm = doc.querySelector('.card-body form');
-                    if (editForm) {
-                        const formContainer = document.querySelector('.card-body form');
-                        formContainer.innerHTML = editForm.innerHTML;
-                    }
-                });
+    // Валидация форм
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const inputs = this.querySelectorAll('input[required]');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+            }
         });
     });
 });

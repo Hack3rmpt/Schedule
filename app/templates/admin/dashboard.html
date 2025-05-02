@@ -6,4 +6,6 @@
     <h1>Панель администратора</h1>
     <p>Добро пожаловать, {{ current_user.username }}!</p>
     <a href="{{ url_for('admin.create_user') }}">Создать пользователя</a>
+    <a href="{{ url_for('admin.logs') }}">Логи приложения</a>
+    <a href="{{ url_for('admin.backup_page') }}">Бекапы приложения</a>
 {% endblock %}

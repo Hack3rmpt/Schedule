@@ -1,0 +1,146 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2><i class="fas fa-database"></i> Управление бэкапами</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <i class="fas fa-plus-circle"></i> Создание бэкапа
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('admin.backup_page') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="action" value="create">
+                                <p class="card-text">
+                                    Создаст полную резервную копию базы данных в формате SQL
+                                </p>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Создать сейчас
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white">
+                            <i class="fas fa-upload"></i> Восстановление
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('admin.backup_page') }}"
+                                  enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="action" value="upload">
+                                <div class="form-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" name="file" id="backupFile"
+                                               accept=".sql" required>
+                                        <label class="custom-file-label" for="backupFile">Выберите файл бэкапа</label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-redo"></i> Восстановить
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-archive"></i> Доступные резервные копии</span>
+                    <span class="badge badge-light">
+                        {{ backups|length }} файлов
+                    </span>
+                </div>
+
+                <div class="card-body p-0">
+                    {% if backups %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Имя файла</th>
+                                    <th>Дата изменения</th>
+                                    <th>Размер</th>
+                                    <th class="text-right">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for backup in backups %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-file-archive text-primary"></i>
+                                        <span class="font-weight-bold">{{ backup.name }}</span>
+                                    </td>
+                                    <td>
+                                        {{ backup.modified_time.strftime('%Y-%m-%d %H:%M:%S') }}
+                                    </td>
+                                    <td>
+                                        {{ "%.2f"|format(backup.size_mb) }} MB
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ url_for('admin.download_backup', filename=backup.name) }}"
+                                               class="btn btn-outline-primary" title="Скачать">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                            <form method="POST" action="{{ url_for('admin.backup_page') }}"
+                                                  style="display: inline;">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="filename" value="{{ backup.name }}">
+                                                <button type="submit" class="btn btn-outline-danger" title="Удалить"
+                                                   onclick="return confirm('Вы уверены? Бэкап будет удален безвозвратно.')">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center p-4">
+                        <i class="fas fa-database fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">Нет доступных резервных копий</h5>
+                        <p class="text-muted">Создайте первую резервную копию нажав кнопку выше</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Отображение имени файла при выборе
+document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+    const fileName = e.target.files[0].name;
+    const label = e.target.nextElementSibling;
+    label.textContent = fileName;
+});
+</script>
+{% endblock %}

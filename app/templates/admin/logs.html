@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+{% block title %}Логи приложения{% endblock %}
+{% block content %}
+<h2>Фильтр логов</h2>
+<form method="get">
+    <select name="level" class="form-select">
+    <option value="INFO" style="background-color: #e6f7ff;">INFO</option>
+    <option value="WARNING" style="background-color: #fff7e6;">WARNING</option>
+    <option value="ERROR" style="background-color: #ffe6e6;">ERROR</option>
+</select>
+    <button type="submit" class="btn btn-primary px-4 mt-3">
+    <i class="bi bi-funnel-fill me-2"></i>Фильтровать
+</button>
+</form>
+
+<h3>Результаты:</h3>
+<pre style="background: #f5f5f5; padding: 10px; max-height: 500px; overflow-y: auto;">
+{% for log in logs %}
+{{ log }}
+{% else %}
+Нет логов, соответствующих критериям
+{% endfor %}
+</pre>
+{% endblock %}

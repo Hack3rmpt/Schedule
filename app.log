@@ -1,0 +1,253 @@
+2025-04-29 19:11:58,210 - app - INFO - === Application started ===
+2025-04-29 19:11:58,684 - app - INFO - === Application started ===
+2025-04-29 19:13:24,542 - app - INFO - === Application started ===
+2025-04-29 19:15:19,457 - app - INFO - === Application started ===
+2025-04-29 19:15:24,208 - app - ERROR - Exception on /auth/login [GET]
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/Users/betmen/ScheduleProject/app/auth/routes.py", line 16, in login
+    app.logger.info(f"Попытка входа пользователя: {request.form.get('username')}")
+AttributeError: module 'flask.app' has no attribute 'logger'
+2025-04-29 19:15:37,621 - app - INFO - === Application started ===
+2025-04-29 19:19:52,163 - app - INFO - === Application started ===
+2025-04-29 19:22:46,005 - app - INFO - === Application started ===
+2025-04-29 19:22:46,405 - app - INFO - === Application started ===
+2025-04-29 19:24:46,618 - app - INFO - === Application started ===
+2025-04-29 19:24:47,053 - app - INFO - === Application started ===
+2025-04-29 19:38:11,546 - app - INFO - === Application started ===
+2025-04-29 19:38:54,881 - app - INFO - === Application started ===
+2025-04-29 19:41:16,137 - app - INFO - === Application started ===
+2025-04-29 19:44:06,745 - app - INFO - === Application started ===
+2025-04-29 19:44:44,063 - app - INFO - === Application started ===
+2025-04-29 19:45:05,025 - app - INFO - === Application started ===
+2025-04-29 19:45:28,027 - app - INFO - === Application started ===
+2025-04-29 19:46:31,972 - app - INFO - === Application started ===
+2025-04-29 19:46:32,367 - app - INFO - === Application started ===
+2025-04-29 19:51:18,106 - app - ERROR - Backup error: [Errno 2] No such file or directory: 'config.py'
+2025-04-29 19:53:55,637 - app - ERROR - Backup error: [Errno 2] No such file or directory: 'config.py'
+2025-04-29 20:08:45,281 - app - INFO - === Application started ===
+2025-04-29 20:08:48,857 - app - INFO - === Application started ===
+2025-04-29 20:09:01,799 - app - INFO - === Application started ===
+2025-04-29 20:09:02,175 - app - INFO - === Application started ===
+2025-04-29 20:17:45,773 - app - INFO - === Application started ===
+2025-04-29 20:17:46,177 - app - INFO - === Application started ===
+2025-04-29 20:20:43,940 - app - INFO - === Application started ===
+2025-04-29 20:20:44,333 - app - INFO - === Application started ===
+2025-04-29 20:23:46,552 - app - INFO - === Application started ===
+2025-04-29 20:23:46,959 - app - INFO - === Application started ===
+2025-04-29 20:27:09,330 - app - INFO - === Application started ===
+2025-04-29 20:29:26,605 - app - INFO - === Application started ===
+2025-04-29 20:29:47,643 - app - INFO - === Application started ===
+2025-04-29 20:30:33,112 - app - INFO - === Application started ===
+2025-04-29 20:34:00,699 - app - INFO - === Application started ===
+2025-04-29 20:34:25,785 - app - INFO - === Application started ===
+2025-04-29 20:34:26,477 - app - INFO - === Application started ===
+2025-04-30 19:33:06,368 - app - INFO - === Application started ===
+2025-04-30 19:33:06,824 - app - INFO - === Application started ===
+2025-04-30 19:38:10,910 - app - INFO - === Application started ===
+2025-04-30 19:38:12,324 - app - INFO - === Application started ===
+2025-04-30 19:38:12,696 - app - INFO - === Application started ===
+2025-04-30 19:43:39,500 - app - INFO - === Application started ===
+2025-04-30 19:43:42,108 - app - INFO - === Application started ===
+2025-04-30 19:43:42,490 - app - INFO - === Application started ===
+2025-04-30 19:44:52,086 - app - INFO - === Application started ===
+2025-04-30 19:44:52,464 - app - INFO - === Application started ===
+2025-04-30 19:46:40,064 - app - INFO - === Application started ===
+2025-04-30 19:46:43,691 - app - INFO - === Application started ===
+2025-04-30 19:46:58,453 - app - INFO - === Application started ===
+2025-04-30 19:46:58,832 - app - INFO - === Application started ===
+2025-04-30 19:47:03,528 - app - ERROR - Backup error: 'POSTGRES_PASSWORD'
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/app/routes/admin.py", line 146, in backup
+    safe_password = quote_plus(config['POSTGRES_PASSWORD'])
+KeyError: 'POSTGRES_PASSWORD'
+2025-04-30 19:47:04,993 - app - ERROR - Backup error: 'POSTGRES_PASSWORD'
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/app/routes/admin.py", line 146, in backup
+    safe_password = quote_plus(config['POSTGRES_PASSWORD'])
+KeyError: 'POSTGRES_PASSWORD'
+2025-04-30 19:47:05,560 - app - ERROR - Backup error: 'POSTGRES_PASSWORD'
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/app/routes/admin.py", line 146, in backup
+    safe_password = quote_plus(config['POSTGRES_PASSWORD'])
+KeyError: 'POSTGRES_PASSWORD'
+2025-04-30 19:47:05,711 - app - ERROR - Backup error: 'POSTGRES_PASSWORD'
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/app/routes/admin.py", line 146, in backup
+    safe_password = quote_plus(config['POSTGRES_PASSWORD'])
+KeyError: 'POSTGRES_PASSWORD'
+2025-04-30 19:47:05,867 - app - ERROR - Backup error: 'POSTGRES_PASSWORD'
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/app/routes/admin.py", line 146, in backup
+    safe_password = quote_plus(config['POSTGRES_PASSWORD'])
+KeyError: 'POSTGRES_PASSWORD'
+2025-04-30 19:47:06,310 - app - ERROR - Backup error: 'POSTGRES_PASSWORD'
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/app/routes/admin.py", line 146, in backup
+    safe_password = quote_plus(config['POSTGRES_PASSWORD'])
+KeyError: 'POSTGRES_PASSWORD'
+2025-04-30 19:47:06,450 - app - ERROR - Backup error: 'POSTGRES_PASSWORD'
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/app/routes/admin.py", line 146, in backup
+    safe_password = quote_plus(config['POSTGRES_PASSWORD'])
+KeyError: 'POSTGRES_PASSWORD'
+2025-04-30 19:47:06,592 - app - ERROR - Backup error: 'POSTGRES_PASSWORD'
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/app/routes/admin.py", line 146, in backup
+    safe_password = quote_plus(config['POSTGRES_PASSWORD'])
+KeyError: 'POSTGRES_PASSWORD'
+2025-04-30 19:51:51,272 - app - INFO - === Application started ===
+2025-04-30 19:54:46,769 - app - INFO - === Application started ===
+2025-04-30 19:54:49,058 - app - INFO - === Application started ===
+2025-04-30 19:54:49,438 - app - INFO - === Application started ===
+2025-04-30 19:54:51,846 - app - INFO - Executing pg_dump command: pg_dump --dbname="postgresql://postgres:1532@127.0.0.1:5435/Testdb" -Fc -f "/Users/betmen/ScheduleProject/app/routes/../backups/backup_20250430_195451.sql"
+2025-04-30 19:54:55,369 - app - INFO - Executing pg_dump command: pg_dump --dbname="postgresql://postgres:1532@127.0.0.1:5435/Testdb" -Fc -f "/Users/betmen/ScheduleProject/app/routes/../backups/backup_20250430_195455.sql"
+2025-04-30 19:55:35,545 - app - INFO - === Application started ===
+2025-04-30 19:55:35,925 - app - INFO - === Application started ===
+2025-04-30 19:59:52,674 - app - INFO - === Application started ===
+2025-04-30 20:00:41,544 - app - INFO - === Application started ===
+2025-04-30 20:00:41,921 - app - INFO - === Application started ===
+2025-04-30 20:00:51,150 - app - INFO - Executing pg_dump command: pg_dump --dbname="postgresql://postgres:1532@127.0.0.1:5435/Testdb" -Fc -f "/Users/betmen/ScheduleProject/app/backups/backup_20250430_200051.sql"
+2025-04-30 20:13:08,107 - app - INFO - === Application started ===
+2025-04-30 20:13:23,025 - app - INFO - === Application started ===
+2025-04-30 20:13:23,534 - app - INFO - === Application started ===
+2025-04-30 20:13:38,436 - app - INFO - === Application started ===
+2025-04-30 20:13:39,793 - app - INFO - === Application started ===
+2025-04-30 20:13:40,171 - app - INFO - === Application started ===
+2025-04-30 20:16:24,115 - app - INFO - === Application started ===
+2025-04-30 20:16:24,488 - app - INFO - === Application started ===
+2025-04-30 20:17:48,069 - app - INFO - === Application started ===
+2025-04-30 20:17:48,777 - app - INFO - === Application started ===
+2025-04-30 20:22:22,042 - app - INFO - === Application started ===
+2025-04-30 20:26:28,309 - app - INFO - === Application started ===
+2025-04-30 20:26:28,823 - app - INFO - === Application started ===
+2025-04-30 20:47:35,528 - app - INFO - === Application started ===
+2025-04-30 20:47:59,936 - app - INFO - === Application started ===
+2025-04-30 21:38:08,212 - app - INFO - === Application started ===
+2025-04-30 21:38:08,726 - app - INFO - === Application started ===
+2025-04-30 21:38:39,651 - app - INFO - === Application started ===
+2025-04-30 21:38:43,281 - app - INFO - === Application started ===
+2025-04-30 21:38:43,794 - app - INFO - === Application started ===
+2025-04-30 21:45:45,484 - app - INFO - === Application started ===
+2025-04-30 21:46:14,986 - app - INFO - === Application started ===
+2025-04-30 21:46:39,405 - app - INFO - === Application started ===
+2025-04-30 21:47:05,750 - app - INFO - === Application started ===
+2025-04-30 21:47:21,079 - app - INFO - === Application started ===
+2025-04-30 21:48:54,966 - app - INFO - === Application started ===
+2025-04-30 21:49:22,399 - app - INFO - === Application started ===
+2025-04-30 21:49:39,606 - app - INFO - === Application started ===
+2025-04-30 21:51:42,745 - app - INFO - === Application started ===
+2025-04-30 21:51:47,828 - app - INFO - === Application started ===
+2025-04-30 21:51:48,344 - app - INFO - === Application started ===
+2025-04-30 21:55:06,415 - app - INFO - === Application started ===
+2025-04-30 21:55:07,064 - app - INFO - === Application started ===
+2025-04-30 21:55:48,911 - app - INFO - === Application started ===
+2025-04-30 21:56:19,637 - app - INFO - === Application started ===
+2025-04-30 21:58:16,121 - app - INFO - === Application started ===
+2025-04-30 21:58:16,793 - app - INFO - === Application started ===
+2025-04-30 22:02:27,780 - app - INFO - === Application started ===
+2025-04-30 22:12:47,711 - app - INFO - === Application started ===
+2025-04-30 22:12:48,261 - app - INFO - === Application started ===
+2025-04-30 22:15:24,704 - app - INFO - Выполнено: pg_dump --dbname="postgresql://postgres:1532@127.0.0.1:5435/Testdb" --format=custom --file="backups/backup_20250430_221524.sql"
+2025-04-30 22:18:06,358 - app - INFO - === Application started ===
+2025-04-30 22:18:06,939 - app - INFO - === Application started ===
+2025-04-30 22:19:39,218 - app - INFO - === Application started ===
+2025-04-30 22:19:39,926 - app - INFO - === Application started ===
+2025-04-30 22:20:22,537 - app - INFO - Выполнено: pg_dump --dbname="postgresql://postgres:1532@127.0.0.1:5435/Testdb" --format=custom --file="backups/backup_20250430_222022.sql"
+2025-04-30 22:22:22,042 - app - INFO - === Application started ===
+2025-04-30 22:22:35,427 - app - INFO - === Application started ===
+2025-04-30 22:27:59,591 - app - INFO - === Application started ===
+2025-04-30 22:28:00,296 - app - INFO - === Application started ===
+2025-04-30 22:28:21,844 - app - INFO - === Application started ===
+2025-04-30 22:28:23,649 - app - INFO - Выполнено: pg_dump --dbname="postgresql://postgres:1532@127.0.0.1:5435/Testdb" --format=custom --file="backups/backup_20250430_222823.sql"
+2025-04-30 22:28:29,306 - app - INFO - Выполнено: pg_dump --dbname="postgresql://postgres:1532@127.0.0.1:5435/Testdb" --format=custom --file="backups/backup_20250430_222829.sql"
+2025-04-30 22:48:42,177 - app - INFO - === Application started ===
+2025-04-30 22:48:52,412 - app - INFO - === Application started ===
+2025-04-30 22:48:52,588 - app - INFO - Выполнено: pg_dump --dbname="postgresql://postgres:1532@127.0.0.1:5435/Testdb" --format=custom --file="backups/backup_20250430_224852.sql"
+2025-04-30 22:48:57,575 - app - INFO - Выполнено: pg_dump --dbname="postgresql://postgres:1532@127.0.0.1:5435/Testdb" --format=custom --file="backups/backup_20250430_224857.sql"
+2025-04-30 22:55:19,647 - app - INFO - === Application started ===
+2025-04-30 23:02:33,399 - app - INFO - === Application started ===
+2025-04-30 23:02:33,898 - app - INFO - === Application started ===
+2025-04-30 23:04:04,660 - app - INFO - === Application started ===
+2025-04-30 23:04:12,692 - app - INFO - === Application started ===
+2025-04-30 23:04:13,251 - app - INFO - === Application started ===
+2025-04-30 23:06:27,772 - app - INFO - === Application started ===
+2025-04-30 23:06:28,274 - app - INFO - === Application started ===
+2025-04-30 23:09:59,419 - app - INFO - === Application started ===
+2025-04-30 23:09:59,920 - app - INFO - === Application started ===
+2025-04-30 23:13:46,595 - app - INFO - === Application started ===
+2025-04-30 23:13:52,572 - app - INFO - === Application started ===
+2025-04-30 23:15:53,949 - app - INFO - === Application started ===
+2025-04-30 23:15:54,462 - app - INFO - === Application started ===
+2025-04-30 23:18:06,972 - app - INFO - === Application started ===
+2025-04-30 23:18:09,614 - app - INFO - === Application started ===
+2025-04-30 23:18:10,137 - app - INFO - === Application started ===
+2025-04-30 23:20:45,987 - app - INFO - === Application started ===
+2025-04-30 23:21:14,038 - app - INFO - === Application started ===
+2025-04-30 23:21:14,541 - app - INFO - === Application started ===
+2025-04-30 23:22:29,252 - app - INFO - === Application started ===
+2025-04-30 23:31:10,306 - app - INFO - === Application started ===
+2025-04-30 23:31:10,994 - app - INFO - === Application started ===
+2025-04-30 23:32:51,447 - app - INFO - === Application started ===
+2025-04-30 23:32:59,441 - app - INFO - === Application started ===
+2025-04-30 23:36:58,747 - app - INFO - === Application started ===
+2025-04-30 23:36:59,285 - app - INFO - === Application started ===
+2025-04-30 23:44:53,090 - app - INFO - === Application started ===
+2025-04-30 23:44:59,006 - app - INFO - === Application started ===
+2025-04-30 23:44:59,516 - app - INFO - === Application started ===
+2025-04-30 23:53:44,038 - app - INFO - === Application started ===
+2025-04-30 23:53:44,786 - app - INFO - === Application started ===
+2025-04-30 23:53:47,919 - app - INFO - Command output: 
+2025-04-30 23:54:24,742 - app - INFO - === Application started ===
+2025-04-30 23:57:44,319 - app - INFO - === Application started ===
+2025-04-30 23:57:44,986 - app - INFO - === Application started ===
+2025-04-30 23:57:53,037 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250430_235752.sql -F p
+2025-04-30 23:58:11,437 - app - INFO - Starting database restore...
+2025-04-30 23:58:11,564 - app - INFO - Command executed: psql --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -v ON_ERROR_STOP=1 -f /Users/betmen/ScheduleProject/app/backups/temp_restore.sql
+2025-04-30 23:58:11,565 - app - INFO - Database restored successfully
+2025-04-30 23:58:47,451 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250430_235847.sql -F p
+2025-04-30 23:59:43,766 - app - INFO - Starting database restore...
+2025-04-30 23:59:43,889 - app - INFO - Command executed: psql --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -v ON_ERROR_STOP=1 -f /Users/betmen/ScheduleProject/app/backups/temp_restore.sql
+2025-04-30 23:59:43,889 - app - INFO - Database restored successfully
+2025-05-01 21:23:03,356 - app - INFO - === Application started ===
+2025-05-01 21:23:03,921 - app - INFO - === Application started ===
+2025-05-02 14:12:13,287 - app - INFO - === Application started ===
+2025-05-02 14:12:13,868 - app - INFO - === Application started ===
+2025-05-02 14:15:39,223 - app - INFO - === Application started ===
+2025-05-02 14:15:49,352 - app - INFO - === Application started ===
+2025-05-02 14:16:55,384 - app - INFO - === Application started ===
+2025-05-02 14:26:54,211 - app - INFO - === Application started ===
+2025-05-02 14:30:20,299 - app - INFO - === Application started ===
+2025-05-02 14:30:21,071 - app - INFO - === Application started ===
+2025-05-02 14:34:52,645 - app - INFO - === Application started ===
+2025-05-02 14:34:53,148 - app - INFO - === Application started ===
+2025-05-02 14:37:05,883 - app - INFO - === Application started ===
+2025-05-02 14:37:06,752 - app - INFO - === Application started ===
+2025-05-02 14:39:30,395 - app - INFO - === Application started ===
+2025-05-02 14:39:30,913 - app - INFO - === Application started ===
+2025-05-02 14:40:12,652 - app - INFO - === Application started ===
+2025-05-02 14:40:13,158 - app - INFO - === Application started ===
+2025-05-02 14:41:37,205 - app - INFO - === Application started ===
+2025-05-02 14:41:37,706 - app - INFO - === Application started ===
+2025-05-02 14:52:52,421 - app - INFO - === Application started ===
+2025-05-02 14:53:48,059 - app - INFO - === Application started ===
+2025-05-02 14:53:48,742 - app - INFO - === Application started ===
+2025-05-02 14:59:19,796 - app - INFO - === Application started ===
+2025-05-02 14:59:20,316 - app - INFO - === Application started ===
+2025-05-02 15:03:46,665 - app - INFO - === Application started ===
+2025-05-02 15:03:47,323 - app - INFO - === Application started ===
+2025-05-02 15:07:48,155 - app - INFO - === Application started ===
+2025-05-02 15:07:48,865 - app - INFO - === Application started ===
+2025-05-02 15:11:40,702 - app - INFO - === Application started ===
+2025-05-02 15:11:41,227 - app - INFO - === Application started ===
+2025-05-02 15:19:46,384 - app - INFO - === Application started ===
+2025-05-02 15:19:47,115 - app - INFO - === Application started ===
+2025-05-02 15:20:33,371 - app - INFO - === Application started ===
+2025-05-02 15:20:33,910 - app - INFO - === Application started ===

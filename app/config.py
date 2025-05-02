@@ -10,3 +10,20 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = f'postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}'
     SECRET_KEY = '09182b3cr9b8721sk901j238ys19208nxy9'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+
+    LOGGING_CONFIG = {
+        'version': 1,
+        'handlers': {
+            'file': {
+                'class': 'logging.FileHandler',
+                'filename': 'app.log',
+                'level': 'DEBUG'
+            }
+        },
+        'root': {
+            'handlers': ['file'],
+            'level': 'DEBUG'
+        }
+    }
+
+

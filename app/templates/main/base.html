@@ -6,6 +6,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/libraries/bootstrap.min.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex: 1;
+        }
+    </style>
 </head>
 <body>
     <header class="bg-primary text-white py-3">
@@ -59,7 +69,7 @@
 </main>
 
 
-    <footer class="bg-light py-4 mt-5">
+    <footer class="bg-light py-4">
         <div class="container text-center">
             <p class="mb-0">&copy; 2025 Расписание. Все права защищены.</p>
         </div>

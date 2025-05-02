@@ -4,17 +4,103 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Сгенерированное расписание</h2>
+    <!-- Заголовок и информационная панель -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Сгенерированное расписание</h2>
+        {% if exams %}
+        <div class="d-flex flex-column align-items-end">
+            <div class="d-flex mb-1">
+                <a href="{{ url_for('schedule.export_schedule', course_id=course.id, **request.args) }}"
+                   class="btn btn-success me-2">
+                    <i class="fas fa-file-excel"></i> Экспорт в Excel
+                </a>
+
+                <form method="post" action="{{ url_for('schedule.export_schedule', course_id=course.id) }}" class="d-flex">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="teacher_id" value="{{ request.args.get('teacher_id', '') }}">
+    <input type="hidden" name="group_id" value="{{ request.args.get('group_id', '') }}">
+    <input type="hidden" name="subject_id" value="{{ request.args.get('subject_id', '') }}">
+    <div class="input-group">
+        <input type="email" name="recipient" class="form-control" placeholder="Email получателя" required>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i> Отправить
+        </button>
+    </div>
+</form>
+            </div>
+            <span class="text-muted small">
+                <i class="fas fa-info-circle"></i> Действия выполняются по текущим фильтрам
+            </span>
+        </div>
+        {% endif %}
+    </div>
 
     <!-- Информация о курсе -->
     <div class="card mb-4">
         <div class="card-body">
             <h4 class="card-title">Курс: {{ course.number }} ({{ course.specialization.name }})</h4>
-            <p class="card-text">Период: {{ start_date.strftime('%d.%m.%Y') }} - {{ end_date.strftime('%d.%m.%Y') }}</p>
+            {% if exams %}
+                <p class="card-text">Период: {{ exams[0].datetime.strftime('%d.%m.%Y') }} - {{ exams[-1].datetime.strftime('%d.%m.%Y') }}</p>
+                <p class="card-text text-muted">Найдено записей: {{ exams|length }}</p>
+            {% else %}
+                <p class="card-text text-danger">Нет данных для отображения</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Форма фильтрации -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Фильтры</h5>
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="teacher_id" class="form-label">Преподаватель</label>
+                    <select class="form-select" id="teacher_id" name="teacher_id">
+                        <option value="">Все преподаватели</option>
+                        {% for teacher in teachers %}
+                        <option value="{{ teacher.id }}" {% if request.args.get('teacher_id') == teacher.id|string %}selected{% endif %}>
+                            {{ teacher.full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="group_id" class="form-label">Группа</label>
+                    <select class="form-select" id="group_id" name="group_id">
+                        <option value="">Все группы</option>
+                        {% for group in groups %}
+                        <option value="{{ group.id }}" {% if request.args.get('group_id') == group.id|string %}selected{% endif %}>
+                            {{ group.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="subject_id" class="form-label">Предмет</label>
+                    <select class="form-select" id="subject_id" name="subject_id">
+                        <option value="">Все предметы</option>
+                        {% for subject in subjects %}
+                        <option value="{{ subject.id }}" {% if request.args.get('subject_id') == subject.id|string %}selected{% endif %}>
+                            {{ subject.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Применить фильтры
+                    </button>
+                    <a href="{{ url_for('schedule.view_schedule', course_id=course.id) }}"
+                       class="btn btn-outline-danger ms-2">
+                        <i class="fas fa-times"></i> Сбросить фильтры
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Таблица с расписанием -->
+    {% if exams %}
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -45,9 +131,15 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        По выбранным фильтрам экзамены не найдены. Пожалуйста, измените параметры фильтрации.
+    </div>
+    {% endif %}
 
-    <!-- Кнопка назад -->
-    <div class="mt-4">
+    <!-- Навигационные кнопки -->
+    <div class="mt-4 d-flex justify-content-between">
         <a href="{{ url_for('schedule.list_courses', specialization_id=course.specialization_id) }}"
            class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> Назад к курсам

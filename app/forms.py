@@ -520,3 +520,38 @@ class GenerateScheduleForm(FlaskForm):
     max_exams_per_day = IntegerField('Макс. экзаменов в день', default=3)
     min_days_between_exams = IntegerField('Минимальный интервал (дни)', default=1)
     submit = SubmitField('Сгенерировать')
+
+from flask_wtf.file import FileRequired, FileAllowed
+from wtforms import FileField, SubmitField
+
+class BackupForm(FlaskForm):
+    csrf_token = HiddenField()  # Добавляем CSRF-токен
+
+    file = FileField(
+        'Файл резервной копии',
+        validators=[
+            FileRequired(message="Необходимо выбрать файл"),
+            FileAllowed(
+                ['sql', 'gz', 'dump'],  # Убрал 'backup' как нестандартное расширение
+                message='Поддерживаются только SQL, GZIP и дампы PostgreSQL'
+            )
+        ],
+        render_kw={
+            'class': 'form-control-file',
+            'accept': '.sql,.gz,.dump',
+            'aria-describedby': 'fileHelp',
+            'onchange': "showFileName(this)"
+        }
+    )
+
+    submit = SubmitField(
+        'Загрузить и восстановить',
+        render_kw={
+            'class': 'btn btn-warning btn-lg mt-3',
+            'disabled': True  # Будет активирован после выбора файла
+        }
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(BackupForm, self).__init__(*args, **kwargs)
+        self.csrf_token.data = kwargs.get('csrf_token')

@@ -1,7 +1,7 @@
 from dis import show_code
 from shlex import shlex
 import logging
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError
 from app.extensions import db
@@ -390,12 +390,48 @@ def delete_course(course_id):
 # Преподователи (Teachers)
 # ========================
 
+# @schedule.route('/teachers', methods=['GET'])
+# @login_required
+# def list_teachers():
+#     teachers = Teacher.query.all()
+#     add_form = AddTeacherForm()
+#     return render_template('schedule/teachers.html', teachers=teachers, add_form=add_form)
+
 @schedule.route('/teachers', methods=['GET'])
 @login_required
 def list_teachers():
-    teachers = Teacher.query.all()
+    search_query = request.args.get('search', '').strip()
     add_form = AddTeacherForm()
-    return render_template('schedule/teachers.html', teachers=teachers, add_form=add_form)
+
+    # Базовый запрос
+    teachers_query = Teacher.query
+
+    # Применяем поиск, если есть запрос
+    if search_query:
+        search_pattern = f"%{search_query}%"
+        teachers_query = teachers_query.filter(
+            or_(
+                Teacher.last_name.ilike(search_pattern),
+                Teacher.first_name.ilike(search_pattern),
+                Teacher.patronymic.ilike(search_pattern),
+                Teacher.email.ilike(search_pattern),
+                db.func.concat(
+                    Teacher.last_name, ' ',
+                    Teacher.first_name, ' ',
+                    Teacher.patronymic
+                ).ilike(search_pattern)
+            )
+        )
+
+    # Сортируем по фамилии и имени
+    teachers = teachers_query.order_by(Teacher.last_name, Teacher.first_name).all()
+
+    return render_template(
+        'schedule/teachers.html',
+        teachers=teachers,
+        add_form=add_form,
+        search_query=search_query  # Передаём поисковый запрос в шаблон
+    )
 
 
 @schedule.route('/teachers/create', methods=['GET', 'POST'])
@@ -461,6 +497,43 @@ def delete_teacher(teacher_id):
         db.session.rollback()
         flash(f'Ошибка при удалении преподавателя: {str(e)}', 'danger')
     return redirect(url_for('schedule.list_teachers'))
+
+from sqlalchemy import or_
+#
+# @schedule.route('/teachers', methods=['GET'])
+# @login_required
+# def list_teachers():
+#     search_query = request.args.get('search', '').strip()
+#     add_form = AddTeacherForm()
+#
+#     # Базовый запрос
+#     teachers_query = Teacher.query
+#
+#     # Применяем поиск, если есть запрос
+#     if search_query:
+#         search_pattern = f"%{search_query}%"
+#         teachers_query = teachers_query.filter(
+#             or_(
+#                 Teacher.last_name.ilike(search_pattern),
+#                 Teacher.first_name.ilike(search_pattern),
+#                 Teacher.patronymic.ilike(search_pattern),
+#                 Teacher.email.ilike(search_pattern),
+#                 db.func.concat(
+#                     Teacher.last_name, ' ',
+#                     Teacher.first_name, ' ',
+#                     Teacher.patronymic
+#                 ).ilike(search_pattern)
+#             )
+#         )
+#
+#     teachers = teachers_query.all()
+#
+#     return render_template(
+#         'schedule/teachers.html',
+#         teachers=teachers,
+#         add_form=add_form,
+#         search_query=search_query
+#     )
 
 
 # ========================
@@ -622,21 +695,243 @@ def generate_for_course(course_id):
                            course=course,
                            form=form)
 
+
 @schedule.route('/view_schedule/<int:course_id>')
 @login_required
 def view_schedule(course_id):
-    # Получаем данные о курсе
     course = Course.query.get_or_404(course_id)
 
-    # Получаем сгенерированное расписание через связь с группами
-    exams = Exam.query.join(StudentGroup).filter(StudentGroup.course_id == course_id).order_by(Exam.datetime).all()
+    # Получаем параметры фильтрации
+    teacher_id = request.args.get('teacher_id')
+    group_id = request.args.get('group_id')
+    subject_id = request.args.get('subject_id')
 
-    # Определяем период расписания
-    start_date = exams[0].datetime if exams else None
-    end_date = exams[-1].datetime if exams else None
+    # Базовый запрос
+    query = Exam.query.join(StudentGroup).filter(StudentGroup.course_id == course_id)
+
+    # Применяем фильтры
+    if teacher_id:
+        query = query.filter(Exam.teacher_id == teacher_id)
+    if group_id:
+        query = query.filter(Exam.group_id == group_id)
+    if subject_id:
+        query = query.filter(Exam.subject_id == subject_id)
+
+    exams = query.order_by(Exam.datetime).all()
+
+    # Получаем списки для фильтров
+    teachers = Teacher.query.join(Exam).join(StudentGroup).filter(
+        StudentGroup.course_id == course_id
+    ).distinct().all()
+
+    groups = StudentGroup.query.filter_by(course_id=course_id).all()
+    subjects = Subject.query.join(Exam).join(StudentGroup).filter(
+        StudentGroup.course_id == course_id
+    ).distinct().all()
+
+    # Проверяем, есть ли данные
+    if not exams:
+        flash('По выбранным фильтрам данные не найдены', 'warning')
+        return render_template('schedule/view_schedule.html',
+                               course=course,
+                               exams=[],
+                               teachers=teachers,
+                               groups=groups,
+                               subjects=subjects,
+                               start_date=None,
+                               end_date=None)
+
+    start_date = exams[0].datetime
+    end_date = exams[-1].datetime
 
     return render_template('schedule/view_schedule.html',
                            course=course,
                            exams=exams,
+                           teachers=teachers,
+                           groups=groups,
+                           subjects=subjects,
                            start_date=start_date,
                            end_date=end_date)
+
+from flask import make_response
+from io import BytesIO
+import pandas as pd
+
+
+# @schedule.route('/export_schedule/<int:course_id>')
+# @login_required
+# def export_schedule(course_id):
+#     # Повторяем логику фильтрации из view_schedule
+#     teacher_id = request.args.get('teacher_id')
+#     group_id = request.args.get('group_id')
+#     subject_id = request.args.get('subject_id')
+#
+#     query = Exam.query.join(StudentGroup).filter(StudentGroup.course_id == course_id)
+#
+#     if teacher_id:
+#         query = query.filter(Exam.teacher_id == teacher_id)
+#     if group_id:
+#         query = query.filter(Exam.group_id == group_id)
+#     if subject_id:
+#         query = query.filter(Exam.subject_id == subject_id)
+#
+#     exams = query.order_by(Exam.datetime).all()
+#
+#     # Преобразуем данные в DataFrame
+#     data = [{
+#         'Дата и время': exam.datetime.strftime('%d.%m.%Y %H:%M'),
+#         'Предмет': exam.subject.name,
+#         'Преподаватель': exam.teacher.full_name,
+#         'Аудитория': exam.room.full_number,
+#         'Корпус': exam.room.building,
+#         'Группа': exam.group.name
+#     } for exam in exams]
+#
+#     df = pd.DataFrame(data)
+#
+#     # Создаем Excel файл в памяти
+#     output = BytesIO()
+#     writer = pd.ExcelWriter(output, engine='openpyxl')
+#     df.to_excel(writer, index=False, sheet_name='Расписание')
+#     writer.close()
+#     output.seek(0)
+#
+#     # Формируем ответ
+#     response = make_response(output.getvalue())
+#     response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+#     response.headers['Content-Disposition'] = f'attachment; filename=schedule_course_{course_id}.xlsx'
+#
+#     return response
+
+from app import mail
+from flask_mail import Message
+from flask import current_app
+
+@schedule.route('/export_schedule/<int:course_id>', methods=['GET', 'POST'])
+@login_required
+def export_schedule(course_id):
+    # Обработка GET запроса (скачивание файла)
+    if request.method == 'GET':
+        # Повторяем логику фильтрации из view_schedule
+        teacher_id = request.args.get('teacher_id')
+        group_id = request.args.get('group_id')
+        subject_id = request.args.get('subject_id')
+
+        query = Exam.query.join(StudentGroup).filter(StudentGroup.course_id == course_id)
+
+        if teacher_id:
+            query = query.filter(Exam.teacher_id == teacher_id)
+        if group_id:
+            query = query.filter(Exam.group_id == group_id)
+        if subject_id:
+            query = query.filter(Exam.subject_id == subject_id)
+
+        exams = query.order_by(Exam.datetime).all()
+
+        # Преобразуем данные в DataFrame
+        data = [{
+            'Дата и время': exam.datetime.strftime('%d.%m.%Y %H:%M'),
+            'Предмет': exam.subject.name,
+            'Преподаватель': exam.teacher.full_name,
+            'Аудитория': exam.room.full_number,
+            'Корпус': exam.room.building,
+            'Группа': exam.group.name
+        } for exam in exams]
+
+        df = pd.DataFrame(data)
+
+        # Создаем Excel файл в памяти
+        output = BytesIO()
+        writer = pd.ExcelWriter(output, engine='openpyxl')
+        df.to_excel(writer, index=False, sheet_name='Расписание')
+        writer.close()
+        output.seek(0)
+
+        # Формируем ответ для скачивания
+        response = make_response(output.getvalue())
+        response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        response.headers['Content-Disposition'] = f'attachment; filename=schedule_course_{course_id}.xlsx'
+
+        # Отправка расписания на email текущего пользователя
+        try:
+            send_schedule_email(current_user.email, output.getvalue(), f'schedule_course_{course_id}.xlsx')
+            flash('Расписание успешно отправлено на вашу электронную почту!', 'success')
+        except Exception as e:
+            flash(f'Ошибка при отправке расписания: {str(e)}', 'error')
+
+        return response
+
+    # Обработка POST запроса (отправка на указанный email)
+    elif request.method == 'POST':
+        # Получаем параметры из формы
+        recipient = request.form.get('recipient')
+        teacher_id = request.form.get('teacher_id')
+        group_id = request.form.get('group_id')
+        subject_id = request.form.get('subject_id')
+
+        # Фильтрация
+        query = Exam.query.join(StudentGroup).filter(StudentGroup.course_id == course_id)
+
+        if teacher_id:
+            query = query.filter(Exam.teacher_id == teacher_id)
+        if group_id:
+            query = query.filter(Exam.group_id == group_id)
+        if subject_id:
+            query = query.filter(Exam.subject_id == subject_id)
+
+        exams = query.order_by(Exam.datetime).all()
+
+        # Создание Excel файла
+        data = [{
+            'Дата и время': exam.datetime.strftime('%d.%m.%Y %H:%M'),
+            'Предмет': exam.subject.name,
+            'Преподаватель': exam.teacher.full_name,
+            'Аудитория': exam.room.full_number,
+            'Корпус': exam.room.building,
+            'Группа': exam.group.name
+        } for exam in exams]
+
+        df = pd.DataFrame(data)
+        output = BytesIO()
+        writer = pd.ExcelWriter(output, engine='openpyxl')
+        df.to_excel(writer, index=False, sheet_name='Расписание')
+        writer.close()
+        output.seek(0)
+
+        # Отправка email
+        try:
+            msg = Message(
+                "Расписание экзаменов",
+                recipients=[recipient],
+                sender=current_app.config['MAIL_DEFAULT_SENDER']
+            )
+            msg.body = f"Расписание экзаменов (отправлено пользователем {current_user.email})"
+            filename = f'schedule_course_{course_id}.xlsx'
+            msg.attach(filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', output.getvalue())
+            mail.send(msg)
+            flash(f'Расписание успешно отправлено на {recipient}!', 'success')
+        except Exception as e:
+            flash(f'Ошибка отправки: {str(e)}', 'danger')
+
+        return redirect(url_for('schedule.view_schedule', course_id=course_id,
+                                teacher_id=teacher_id if teacher_id else None,
+                                group_id=group_id if group_id else None,
+                                subject_id=subject_id if subject_id else None))
+
+
+def send_schedule_email(recipient, schedule_data, filename):
+    try:
+        msg = Message(
+            "Расписание экзаменов",
+            recipients=[recipient],
+            sender=current_app.config['MAIL_DEFAULT_SENDER']
+        )
+        msg.body = "Ваше расписание экзаменов во вложении."
+        msg.attach(filename,
+                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                 schedule_data)
+        mail.send(msg)
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Ошибка отправки email: {str(e)}")
+        return False
