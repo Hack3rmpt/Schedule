@@ -251,3 +251,19 @@ KeyError: 'POSTGRES_PASSWORD'
 2025-05-02 15:19:47,115 - app - INFO - === Application started ===
 2025-05-02 15:20:33,371 - app - INFO - === Application started ===
 2025-05-02 15:20:33,910 - app - INFO - === Application started ===
+2025-05-02 18:54:52,560 - app - INFO - === Application started ===
+2025-05-02 18:54:53,257 - app - INFO - === Application started ===
+2025-05-02 19:15:26,043 - app - INFO - === Application started ===
+2025-05-02 19:15:26,594 - app - INFO - === Application started ===
+2025-05-02 22:37:29,783 - app - INFO - === Application started ===
+2025-05-03 13:55:22,628 - app - INFO - === Application started ===
+2025-05-03 13:55:23,221 - app - INFO - === Application started ===
+2025-05-03 13:57:44,081 - app - INFO - === Application started ===
+2025-05-03 13:57:44,604 - app - INFO - === Application started ===
+2025-05-03 14:02:13,130 - app - INFO - === Application started ===
+2025-05-03 14:02:17,761 - app - INFO - === Application started ===
+2025-05-03 14:02:18,275 - app - INFO - === Application started ===
+2025-05-03 14:05:30,713 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250503_140530.sql -F p
+2025-05-03 14:06:31,633 - app - INFO - Starting database restore...
+2025-05-03 14:06:31,767 - app - INFO - Command executed: psql --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -v ON_ERROR_STOP=1 -f /Users/betmen/ScheduleProject/app/backups/temp_restore.sql
+2025-05-03 14:06:31,768 - app - INFO - Database restored successfully

@@ -326,8 +326,55 @@ class EditRoomForm(FlaskForm):
 
 
 ### 5. Формы для экзамена (Exam) ###
+# class AddExamForm(FlaskForm):
+#     datetime = DateTimeField('Дата и время', format='%Y-%m-%d %H:%M', validators=[DataRequired()])
+#     duration = IntegerField('Длительность (минуты)', validators=[
+#         DataRequired(),
+#         NumberRange(min=1, max=240, message="Допустимые значения 1-240")
+#     ])
+#     subject_id = SelectField('Предмет', coerce=int, validators=[DataRequired()])
+#     group_id = SelectField('Группа', coerce=int, validators=[DataRequired()])
+#     teacher_id = SelectField('Преподаватель', coerce=int, validators=[DataRequired()])
+#     room_id = SelectField('Аудитория', coerce=int, validators=[DataRequired()])
+#     submit = SubmitField('Добавить экзамен')
+#
+#     def __init__(self, *args, **kwargs):
+#         super(AddExamForm, self).__init__(*args, **kwargs)
+#         self.subject_id.choices = [(s.id, s.name) for s in Subject.query.all()]
+#         self.group_id.choices = [(g.id, g.name) for g in StudentGroup.query.all()]
+#         self.teacher_id.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
+#         self.room_id.choices = [(r.id, f"{r.number} ({r.type})") for r in Room.query.all()]
+#
+# class EditExamForm(FlaskForm):
+#     exam_id = HiddenField('ID экзамена')
+#     datetime = DateTimeField('Дата и время', format='%Y-%m-%d %H:%M', validators=[DataRequired()])
+#     duration = IntegerField('Длительность (минуты)', validators=[
+#         DataRequired(),
+#         NumberRange(min=1, max=240, message="Допустимые значения 1-240")
+#     ])
+#     subject_id = SelectField('Предмет', coerce=int, validators=[DataRequired()])
+#     group_id = SelectField('Группа', coerce=int, validators=[DataRequired()])
+#     teacher_id = SelectField('Преподаватель', coerce=int, validators=[DataRequired()])
+#     room_id = SelectField('Аудитория', coerce=int, validators=[DataRequired()])
+#     submit = SubmitField('Сохранить изменения')
+#
+#     def __init__(self, exam=None, *args, **kwargs):  # Добавьте параметр exam
+#         super(EditExamForm, self).__init__(*args, **kwargs)
+#         self.subject_id.choices = [(s.id, s.name) for s in Subject.query.all()]
+#         self.group_id.choices = [(g.id, g.name) for g in StudentGroup.query.all()]
+#         self.teacher_id.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
+#         self.room_id.choices = [(r.id, f"{r.number} ({r.type})") for r in Room.query.all()]
+#
+#         if exam:  # Заполняем данные формы из объекта экзамена
+#             self.datetime.data = exam.datetime
+#             self.duration.data = exam.duration
+#             self.subject_id.data = exam.subject_id
+#             self.group_id.data = exam.group_id
+#             self.teacher_id.data = exam.teacher_id
+#             self.room_id.data = exam.room_id
+
 class AddExamForm(FlaskForm):
-    datetime = DateTimeField('Дата и время', format='%Y-%m-%d %H:%M', validators=[DataRequired()])
+    datetime = DateTimeField('Дата и время', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     duration = IntegerField('Длительность (минуты)', validators=[
         DataRequired(),
         NumberRange(min=1, max=240, message="Допустимые значения 1-240")
@@ -340,14 +387,14 @@ class AddExamForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(AddExamForm, self).__init__(*args, **kwargs)
-        self.subject_id.choices = [(s.id, s.name) for s in Subject.query.all()]
-        self.group_id.choices = [(g.id, g.name) for g in StudentGroup.query.all()]
-        self.teacher_id.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
-        self.room_id.choices = [(r.id, f"{r.number} ({r.type})") for r in Room.query.all()]
+        self.subject_id.choices = [(s.id, s.name) for s in Subject.query.order_by(Subject.name).all()]
+        self.group_id.choices = [(g.id, g.name) for g in StudentGroup.query.order_by(StudentGroup.name).all()]
+        self.teacher_id.choices = [(t.id, t.full_name) for t in Teacher.query.order_by(Teacher.last_name).all()]
+        self.room_id.choices = [(r.id, f"{r.number} ({r.type})") for r in Room.query.order_by(Room.number).all()]
+
 
 class EditExamForm(FlaskForm):
-    exam_id = HiddenField('ID экзамена')
-    datetime = DateTimeField('Дата и время', format='%Y-%m-%d %H:%M', validators=[DataRequired()])
+    datetime = DateTimeField('Дата и время', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     duration = IntegerField('Длительность (минуты)', validators=[
         DataRequired(),
         NumberRange(min=1, max=240, message="Допустимые значения 1-240")
@@ -358,14 +405,16 @@ class EditExamForm(FlaskForm):
     room_id = SelectField('Аудитория', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Сохранить изменения')
 
-    def __init__(self, exam=None, *args, **kwargs):  # Добавьте параметр exam
+    def __init__(self, *args, **kwargs):
+        exam = kwargs.pop('exam', None)
         super(EditExamForm, self).__init__(*args, **kwargs)
-        self.subject_id.choices = [(s.id, s.name) for s in Subject.query.all()]
-        self.group_id.choices = [(g.id, g.name) for g in StudentGroup.query.all()]
-        self.teacher_id.choices = [(t.id, t.full_name) for t in Teacher.query.all()]
-        self.room_id.choices = [(r.id, f"{r.number} ({r.type})") for r in Room.query.all()]
 
-        if exam:  # Заполняем данные формы из объекта экзамена
+        self.subject_id.choices = [(s.id, s.name) for s in Subject.query.order_by(Subject.name).all()]
+        self.group_id.choices = [(g.id, g.name) for g in StudentGroup.query.order_by(StudentGroup.name).all()]
+        self.teacher_id.choices = [(t.id, t.full_name) for t in Teacher.query.order_by(Teacher.last_name).all()]
+        self.room_id.choices = [(r.id, f"{r.number} ({r.type})") for r in Room.query.order_by(Room.number).all()]
+
+        if exam:
             self.datetime.data = exam.datetime
             self.duration.data = exam.duration
             self.subject_id.data = exam.subject_id

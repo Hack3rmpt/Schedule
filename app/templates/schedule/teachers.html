@@ -6,17 +6,6 @@
 <div class="container">
     <h1 class="text-center mb-4">Управление преподавателями</h1>
 
-    <!-- Отображение сообщений -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
 
     <!-- Блок для авторизованных пользователей -->
     {% if current_user.is_authenticated %}

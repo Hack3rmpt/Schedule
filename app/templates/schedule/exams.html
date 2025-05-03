@@ -8,18 +8,6 @@
         <h2 class="mb-0">Управление экзаменами</h2>
     </div>
 
-    <!-- Flash-сообщения -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
     <!-- Форма добавления -->
     {% if current_user.role in ['admin', 'worker'] %}
     <div class="card shadow-sm mb-5">
@@ -30,7 +18,7 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Дата и время</label>
-                        {{ add_form.datetime(class="form-control") }}
+                        {{ add_form.datetime(class="form-control", type="datetime-local") }}
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Длительность (мин)</label>
@@ -115,59 +103,57 @@
         </div>
 
         <!-- Модальное окно редактирования -->
-        <!-- Модальное окно редактирования -->
-<div class="modal fade" id="editModal{{ exam.id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Редактирование экзамена</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{{ url_for('schedule.edit_exam', exam_id=exam.id) }}">
-                {{ edit_form.hidden_tag() }}
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <!-- Дата и время -->
-                        <div class="col-md-6">
-                            {{ edit_form.datetime.label(class="form-label") }}
-                            {{ edit_form.datetime(class="form-control") }}
-                        </div>
-                        <!-- Длительность -->
-                        <div class="col-md-6">
-                            {{ edit_form.duration.label(class="form-label") }}
-                            {{ edit_form.duration(class="form-control") }}
-                        </div>
-                        <!-- Предмет -->
-                        <div class="col-md-6">
-                            {{ edit_form.subject_id.label(class="form-label") }}
-                            {{ edit_form.subject_id(class="form-select") }}
-                        </div>
-                        <!-- Группа -->
-                        <div class="col-md-6">
-                            {{ edit_form.group_id.label(class="form-label") }}
-                            {{ edit_form.group_id(class="form-select") }}
-                        </div>
-                        <!-- Преподаватель -->
-                        <div class="col-md-6">
-                            {{ edit_form.teacher_id.label(class="form-label") }}
-                            {{ edit_form.teacher_id(class="form-select") }}
-                        </div>
-                        <!-- Аудитория -->
-                        <div class="col-md-6">
-                            {{ edit_form.room_id.label(class="form-label") }}
-                            {{ edit_form.room_id(class="form-select") }}
-                        </div>
+        <div class="modal fade" id="editModal{{ exam.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Редактирование экзамена</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
+                    <form method="POST" action="{{ url_for('schedule.edit_exam', exam_id=exam.id) }}">
+                        {{ edit_form.hidden_tag() }}
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <!-- Дата и время -->
+                                <div class="col-md-6">
+                                    {{ edit_form.datetime.label(class="form-label") }}
+                                    {{ edit_form.datetime(class="form-control", type="datetime-local", value=exam.datetime.strftime('%Y-%m-%dT%H:%M')) }}
+                                </div>
+                                <!-- Длительность -->
+                                <div class="col-md-6">
+                                    {{ edit_form.duration.label(class="form-label") }}
+                                    {{ edit_form.duration(class="form-control", value=exam.duration) }}
+                                </div>
+                                <!-- Предмет -->
+                                <div class="col-md-6">
+                                    {{ edit_form.subject_id.label(class="form-label") }}
+                                    {{ edit_form.subject_id(class="form-select") }}
+                                </div>
+                                <!-- Группа -->
+                                <div class="col-md-6">
+                                    {{ edit_form.group_id.label(class="form-label") }}
+                                    {{ edit_form.group_id(class="form-select") }}
+                                </div>
+                                <!-- Преподаватель -->
+                                <div class="col-md-6">
+                                    {{ edit_form.teacher_id.label(class="form-label") }}
+                                    {{ edit_form.teacher_id(class="form-select") }}
+                                </div>
+                                <!-- Аудитория -->
+                                <div class="col-md-6">
+                                    {{ edit_form.room_id.label(class="form-label") }}
+                                    {{ edit_form.room_id(class="form-select") }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    {{ edit_form.submit(class="btn btn-primary") }}
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
-
 
         <!-- Модальное окно удаления -->
         <div class="modal fade" id="deleteModal{{ exam.id }}" tabindex="-1">

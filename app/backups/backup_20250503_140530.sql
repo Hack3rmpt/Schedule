@@ -567,7 +567,8 @@ COPY public.exam (id, datetime, duration, subject_id, group_id, teacher_id, room
 24	2025-04-24 12:00:00	90	3	7	3	12
 25	2025-04-25 08:30:00	90	7	7	9	4
 26	2025-04-25 12:00:00	90	9	8	5	4
-27	2025-04-25 10:10:00	90	4	11	4	4
+28	2025-05-05 13:00:00	90	2	8	24	5
+27	2025-04-25 11:10:00	90	2	8	24	5
 \.
 
 
@@ -730,7 +731,7 @@ SELECT pg_catalog.setval('public.direction_id_seq', 13, true);
 -- Name: exam_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.exam_id_seq', 27, true);
+SELECT pg_catalog.setval('public.exam_id_seq', 28, true);
 
 
 --

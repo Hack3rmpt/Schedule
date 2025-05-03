@@ -628,12 +628,25 @@ def create_exam():
     return redirect(url_for('schedule.list_exams'))
 
 
-@schedule.route('/exams/edit/<int:exam_id>', methods=['POST'])  # Только POST
+@schedule.route('/exams/edit/<int:exam_id>', methods=['GET', 'POST'])  # Добавляем GET
 @login_required
 def edit_exam(exam_id):
     exam = Exam.query.get_or_404(exam_id)
-    form = EditExamForm(exam=exam)  # Передаем экзамен в форму
 
+    if request.method == 'GET':
+        # Заполняем форму данными экзамена для отображения
+        form = EditExamForm(
+            datetime=exam.datetime,
+            duration=exam.duration,
+            subject_id=exam.subject_id,
+            group_id=exam.group_id,
+            teacher_id=exam.teacher_id,
+            room_id=exam.room_id
+        )
+        return render_template('schedule/edit_exam.html', form=form, exam=exam)
+
+    # Обработка POST запроса
+    form = EditExamForm()
     if form.validate_on_submit():
         try:
             exam.datetime = form.datetime.data

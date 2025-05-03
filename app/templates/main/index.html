@@ -7,6 +7,18 @@
     <h1 class="text-center mb-2 mb-md-4">Добро пожаловать в ScheduleApp</h1>
     <p class="lead text-center mb-4">Управляйте расписанием экзаменов легко и удобно.</p>
 
+        <!-- Flash-сообщения -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <!-- Блок для авторизованных пользователей -->
     {% if current_user.is_authenticated %}
         <div class="alert alert-info mt-3 mt-md-4 py-2">
