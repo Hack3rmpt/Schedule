@@ -267,3 +267,23 @@ KeyError: 'POSTGRES_PASSWORD'
 2025-05-03 14:06:31,633 - app - INFO - Starting database restore...
 2025-05-03 14:06:31,767 - app - INFO - Command executed: psql --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -v ON_ERROR_STOP=1 -f /Users/betmen/ScheduleProject/app/backups/temp_restore.sql
 2025-05-03 14:06:31,768 - app - INFO - Database restored successfully
+2025-05-03 23:28:26,042 - app - INFO - === Application started ===
+2025-05-04 00:08:34,464 - app - INFO - === Application started ===
+2025-05-04 11:41:46,809 - app - INFO - === Application started ===
+2025-05-04 11:43:56,002 - app - INFO - === Application started ===
+2025-05-04 11:54:40,275 - app - INFO - === Application started ===
+2025-05-04 11:54:40,802 - app - INFO - === Application started ===
+2025-05-04 11:55:13,071 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250504_115512_postgresql.dump -F c
+2025-05-04 11:55:50,203 - app - ERROR - Command failed: mysqldump: [Warning] Using a password on the command line interface can be insecure.
+mysqldump: Got error: 2013: Lost connection to MySQL server at 'reading initial communication packet', system error: 0 when trying to connect
+
+2025-05-04 11:56:16,988 - app - INFO - === Application started ===
+2025-05-04 11:56:25,181 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250504_115625.sql -F p
+2025-05-04 11:57:35,485 - app - INFO - === Application started ===
+2025-05-04 11:57:35,997 - app - INFO - === Application started ===
+2025-05-04 11:57:39,924 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250504_115739.sql -F p
+2025-05-04 11:58:15,615 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250504_115815.sql -F p
+2025-05-04 12:01:42,457 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250504_120142.sql -F p
+2025-05-04 12:03:05,269 - app - INFO - === Application started ===
+2025-05-04 12:03:05,776 - app - INFO - === Application started ===
+2025-05-04 12:03:15,766 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250504_120315.sql -F p

@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h2><i class="fas fa-database"></i> Управление бэкапами</h2>
+            <h2><i class="fas fa-database"></i> Управление резервными копиями</h2>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -23,17 +23,17 @@
                 <div class="col-md-6">
                     <div class="card h-100">
                         <div class="card-header bg-primary text-white">
-                            <i class="fas fa-plus-circle"></i> Создание бэкапа
+                            <i class="fas fa-plus-circle"></i> Создание резервной копии
                         </div>
                         <div class="card-body">
                             <form method="POST" action="{{ url_for('admin.backup_page') }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="action" value="create">
                                 <p class="card-text">
-                                    Создаст полную резервную копию базы данных в формате SQL
+                                    Создание полной резервной копии базы данных в формате SQL
                                 </p>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Создать сейчас
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fas fa-save"></i> Создать резервную копию
                                 </button>
                             </form>
                         </div>
@@ -43,7 +43,7 @@
                 <div class="col-md-6">
                     <div class="card h-100">
                         <div class="card-header bg-success text-white">
-                            <i class="fas fa-upload"></i> Восстановление
+                            <i class="fas fa-upload"></i> Восстановление из копии
                         </div>
                         <div class="card-body">
                             <form method="POST" action="{{ url_for('admin.backup_page') }}"
@@ -51,14 +51,15 @@
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="action" value="upload">
                                 <div class="form-group">
+                                    <label for="backupFile">Выберите файл резервной копии (.sql):</label>
                                     <div class="custom-file">
                                         <input type="file" class="custom-file-input" name="file" id="backupFile"
                                                accept=".sql" required>
-                                        <label class="custom-file-label" for="backupFile">Выберите файл бэкапа</label>
+                                        <label class="custom-file-label" for="backupFile">Выберите файл...</label>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-redo"></i> Восстановить
+                                <button type="submit" class="btn btn-success btn-block">
+                                    <i class="fas fa-redo"></i> Восстановить базу данных
                                 </button>
                             </form>
                         </div>
@@ -68,7 +69,7 @@
 
             <div class="card">
                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-archive"></i> Доступные резервные копии</span>
+                    <span><i class="fas fa-archive"></i> Список резервных копий</span>
                     <span class="badge badge-light">
                         {{ backups|length }} файлов
                     </span>
@@ -81,7 +82,7 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th>Имя файла</th>
-                                    <th>Дата изменения</th>
+                                    <th>Дата создания</th>
                                     <th>Размер</th>
                                     <th class="text-right">Действия</th>
                                 </tr>
@@ -94,28 +95,33 @@
                                         <span class="font-weight-bold">{{ backup.name }}</span>
                                     </td>
                                     <td>
-                                        {{ backup.modified_time.strftime('%Y-%m-%d %H:%M:%S') }}
+                                        {{ backup.modified_time.strftime('%d.%m.%Y %H:%M') }}
                                     </td>
                                     <td>
-                                        {{ "%.2f"|format(backup.size_mb) }} MB
+                                        {{ "%.2f"|format(backup.size_mb) }} МБ
                                     </td>
                                     <td class="text-right">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ url_for('admin.download_backup', filename=backup.name) }}"
-                                               class="btn btn-outline-primary" title="Скачать">
-                                                <i class="fas fa-download"></i>
-                                            </a>
-                                            <form method="POST" action="{{ url_for('admin.backup_page') }}"
-                                                  style="display: inline;">
-                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="filename" value="{{ backup.name }}">
-                                                <button type="submit" class="btn btn-outline-danger" title="Удалить"
-                                                   onclick="return confirm('Вы уверены? Бэкап будет удален безвозвратно.')">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </form>
-                                        </div>
+                                        <div class="btn-toolbar" role="toolbar">
+    <div class="btn-group btn-group-sm mr-2" role="group">
+        <a href="{{ url_for('admin.download_backup', filename=backup.name) }}"
+           class="btn btn-outline-primary d-flex align-items-center">
+            <i class="fas fa-download mr-1"></i>
+            <span>Скачать</span>
+        </a>
+    </div>
+    <div class="btn-group btn-group-sm" role="group">
+        <form method="POST" action="{{ url_for('admin.backup_page') }}" style="display: inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="filename" value="{{ backup.name }}">
+            <button type="submit" class="btn btn-outline-danger d-flex align-items-center"
+                onclick="return confirm('Вы уверены, что хотите удалить эту резервную копию?')">
+                <i class="fas fa-trash-alt mr-1"></i>
+                <span>Удалить</span>
+            </button>
+        </form>
+    </div>
+</div>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -125,8 +131,8 @@
                     {% else %}
                     <div class="text-center p-4">
                         <i class="fas fa-database fa-4x text-muted mb-3"></i>
-                        <h5 class="text-muted">Нет доступных резервных копий</h5>
-                        <p class="text-muted">Создайте первую резервную копию нажав кнопку выше</p>
+                        <h5 class="text-muted">Резервные копии отсутствуют</h5>
+                        <p class="text-muted">Создайте первую резервную копию с помощью кнопки выше</p>
                     </div>
                     {% endif %}
                 </div>

@@ -1,6 +1,7 @@
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, SubmitField, HiddenField, DateField, DateTimeField, IntegerField
+from wtforms.fields.choices import RadioField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, Optional, NumberRange
 from app.models.user import User
 
@@ -604,3 +605,52 @@ class BackupForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(BackupForm, self).__init__(*args, **kwargs)
         self.csrf_token.data = kwargs.get('csrf_token')
+
+#
+# class BackupForm(FlaskForm):
+#     csrf_token = HiddenField()  # CSRF-токен
+#
+#     file = FileField(
+#         'Файл резервной копии',
+#         validators=[
+#             FileRequired(message="Необходимо выбрать файл"),
+#             FileAllowed(
+#                 ['sql', 'gz', 'dump', 'sql.gz'],  # Поддерживаемые расширения
+#                 message='Поддерживаются файлы SQL (plain/gzip) и дампы PostgreSQL'
+#             )
+#         ],
+#         render_kw={
+#             'class': 'custom-file-input',
+#             'accept': '.sql,.sql.gz,.gz,.dump',
+#             'aria-describedby': 'fileHelp',
+#             'onchange': "updateFileName(this)",
+#             'id': 'backupFile'
+#         }
+#     )
+#
+#     submit = SubmitField(
+#         'Загрузить и восстановить',
+#         render_kw={
+#             'class': 'btn btn-primary btn-lg mt-3',
+#             'disabled': True,
+#             'id': 'submitBtn'
+#         }
+#     )
+#
+#     backup_type = RadioField(
+#         'Тип резервной копии',
+#         choices=[
+#             ('auto', 'Автоматическое определение'),
+#             ('postgresql', 'PostgreSQL дамп'),
+#             ('mysql', 'MySQL дамп')
+#         ],
+#         default='auto',
+#         render_kw={
+#             'class': 'form-check-input',
+#             'id': 'backupType'
+#         }
+#     )
+#
+#     def __init__(self, *args, **kwargs):
+#         super(BackupForm, self).__init__(*args, **kwargs)
+#         self.csrf_token.data = kwargs.get('csrf_token')
