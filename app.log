@@ -287,3 +287,4 @@ mysqldump: Got error: 2013: Lost connection to MySQL server at 'reading initial 
 2025-05-04 12:03:05,269 - app - INFO - === Application started ===
 2025-05-04 12:03:05,776 - app - INFO - === Application started ===
 2025-05-04 12:03:15,766 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250504_120315.sql -F p
+2025-05-04 13:47:51,713 - app - INFO - === Application started ===
