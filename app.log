@@ -289,3 +289,158 @@ mysqldump: Got error: 2013: Lost connection to MySQL server at 'reading initial 
 2025-05-04 12:03:15,766 - app - INFO - Command executed: pg_dump --dbname postgresql://postgres:1532@127.0.0.1:5435/Testdb -f /Users/betmen/ScheduleProject/app/backups/backup_20250504_120315.sql -F p
 2025-05-04 13:47:51,713 - app - INFO - === Application started ===
 2025-05-04 13:53:56,301 - app - INFO - === Application started ===
+2025-05-04 14:39:06,875 - app - INFO - === Application started ===
+2025-05-04 18:34:57,940 - app - INFO - === Application started ===
+2025-05-04 18:35:05,909 - app - ERROR - Exception on /schedule/teachers/edit/24 [POST]
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+  File "/Users/betmen/ScheduleProject/app/routes/schedule.py", line 472, in edit_teacher
+    if form.validate_on_submit():
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask_wtf/form.py", line 86, in validate_on_submit
+    return self.is_submitted() and self.validate(extra_validators=extra_validators)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/wtforms/form.py", line 330, in validate
+    return super().validate(extra)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/wtforms/form.py", line 147, in validate
+    if not field.validate(self, extra):
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/wtforms/fields/core.py", line 234, in validate
+    stop_validation = self._run_validation_chain(form, chain)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/wtforms/fields/core.py", line 254, in _run_validation_chain
+    validator(form, self)
+  File "/Users/betmen/ScheduleProject/app/forms.py", line 522, in validate_email
+    if teacher and teacher.id != int(self.teacher_id.data):
+TypeError: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+2025-05-04 18:35:21,226 - app - INFO - === Application started ===
+2025-05-04 18:35:21,817 - app - INFO - === Application started ===
+2025-05-04 18:37:29,000 - app - INFO - === Application started ===
+2025-05-04 18:39:22,038 - app - INFO - === Application started ===
+2025-05-04 18:39:25,864 - app - INFO - === Application started ===
+2025-05-04 18:40:26,670 - app - INFO - === Application started ===
+2025-05-04 18:43:41,359 - app - INFO - === Application started ===
+2025-05-04 18:43:42,091 - app - INFO - === Application started ===
+2025-05-04 19:00:58,656 - app - INFO - === Application started ===
+2025-05-04 19:00:59,368 - app - INFO - === Application started ===
+2025-05-05 15:12:57,367 - app - INFO - === Application started ===
+2025-05-05 15:19:15,967 - app - INFO - === Application started ===
+2025-05-05 16:14:19,739 - app - ERROR - Ошибка отправки email: [Errno 8] nodename nor servname provided, or not known
+2025-05-07 20:35:41,175 - app - INFO - === Application started ===
+2025-05-07 20:42:27,731 - app - INFO - === Application started ===
+2025-05-07 22:42:50,453 - app - INFO - === Application started ===
+2025-05-07 22:50:44,005 - app - INFO - === Application started ===
+2025-05-07 22:50:59,939 - app - ERROR - Exception on /schedule/directions/13/delete [POST]
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.NotNullViolation: null value in column "specialization_id" of relation "course" violates not-null constraint
+DETAIL:  Failing row contains (3, 4, null).
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+  File "/Users/betmen/ScheduleProject/app/routes/decorators.py", line 11, in decorated_view
+    return func(*args, **kwargs)
+  File "/Users/betmen/ScheduleProject/app/routes/schedule.py", line 84, in delete_direction
+    db.session.commit()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/scoping.py", line 599, in commit
+    return self._proxied.commit()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2032, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1313, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1288, in _prepare_impl
+    self.session.flush()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4353, in flush
+    self._flush(objects)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4488, in _flush
+    with util.safe_reraise():
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 4449, in _flush
+    flush_context.execute()
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/persistence.py", line 85, in save_obj
+    _emit_update_statements(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/orm/persistence.py", line 912, in _emit_update_statements
+    c = connection.execute(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1843, in _execute_context
+    return self._exec_single_context(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2352, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/betmen/ScheduleProject/.venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.NotNullViolation) null value in column "specialization_id" of relation "course" violates not-null constraint
+DETAIL:  Failing row contains (3, 4, null).
+
+[SQL: UPDATE course SET specialization_id=%(specialization_id)s WHERE course.id = %(course_id)s]
+[parameters: {'specialization_id': None, 'course_id': 3}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-05-07 22:51:10,100 - app - INFO - === Application started ===
+2025-05-07 22:51:10,666 - app - INFO - === Application started ===
+2025-05-07 22:52:53,889 - app - INFO - === Application started ===
+2025-05-07 22:52:54,459 - app - INFO - === Application started ===
+2025-05-07 22:53:34,569 - app - INFO - === Application started ===
+2025-05-07 22:53:35,075 - app - INFO - === Application started ===
+2025-05-07 22:58:38,787 - app - INFO - === Application started ===
+2025-05-07 23:02:39,559 - app - INFO - === Application started ===
+2025-05-07 23:02:40,089 - app - INFO - === Application started ===
+2025-05-07 23:03:03,618 - app - INFO - === Application started ===
+2025-05-07 23:06:43,962 - app - INFO - === Application started ===
+2025-05-07 23:06:58,193 - app - INFO - === Application started ===
+2025-05-07 23:07:08,049 - app - INFO - === Application started ===
+2025-05-07 23:07:38,007 - app - INFO - === Application started ===
+2025-05-07 23:07:41,990 - app - INFO - === Application started ===
+2025-05-07 23:07:53,718 - app - INFO - === Application started ===
+2025-05-07 23:08:20,857 - app - INFO - === Application started ===
+2025-05-07 23:08:47,084 - app - INFO - === Application started ===
+2025-05-07 23:08:47,578 - app - INFO - === Application started ===
+2025-05-07 23:12:46,137 - app - INFO - === Application started ===
+2025-05-07 23:12:46,865 - app - INFO - === Application started ===
+2025-05-12 18:34:35,792 - app - INFO - === Application started ===
+2025-05-13 01:23:13,139 - app - INFO - === Application started ===
+2025-05-13 18:16:36,225 - app - INFO - === Application started ===
+2025-05-14 00:09:23,761 - app - INFO - === Application started ===
+2025-05-14 19:44:01,942 - app - INFO - === Application started ===
+2025-05-14 20:07:04,412 - app - INFO - === Application started ===
+2025-05-14 20:07:04,992 - app - INFO - === Application started ===
+2025-05-14 20:10:00,828 - app - INFO - === Application started ===
+2025-05-14 20:10:01,327 - app - INFO - === Application started ===

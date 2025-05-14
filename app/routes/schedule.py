@@ -468,6 +468,7 @@ def handle_form_errors(form):
 def edit_teacher(teacher_id):
     teacher = Teacher.query.get_or_404(teacher_id)
     form = EditTeacherForm(obj=teacher)
+    form.teacher_id.data = teacher_id
 
     if form.validate_on_submit():
         try:
@@ -552,7 +553,8 @@ def list_rooms():
         new_room = Room(
             number=add_form.number.data,
             capacity=add_form.capacity.data,
-            type=add_form.type.data
+            type=add_form.type.data,
+        building = add_form.building.data
         )
         db.session.add(new_room)
         db.session.commit()

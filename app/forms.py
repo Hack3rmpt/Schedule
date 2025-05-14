@@ -519,7 +519,8 @@ class EditTeacherForm(FlaskForm):
 
     def validate_email(self, field):
         teacher = Teacher.query.filter_by(email=field.data).first()
-        if teacher and teacher.id != int(self.teacher_id.data):
+        # Добавляем проверку на наличие teacher_id.data
+        if teacher and (self.teacher_id.data is None or teacher.id != int(self.teacher_id.data)):
             raise ValidationError('Преподаватель с такой электронной почтой уже существует')
 
 class AddDirectionForm(FlaskForm):
